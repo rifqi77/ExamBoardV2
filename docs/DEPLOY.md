@@ -36,6 +36,19 @@ php artisan migrate            # builds the schema (baseline + later migrations)
 > Migrating onto the existing shared DB is already baselined — see
 > `database/MIGRATIONS.md`.
 
+**Create the first administrator** — a fresh database has no accounts to log in with:
+```bash
+php artisan app:create-admin                                   # interactive prompts
+php artisan app:create-admin admin --name="School Admin" --password="change-me"   # scripted
+```
+Then sign in at `/login` and create teachers/students from the admin dashboard.
+
+> **Bringing existing content over (optional).** The repo ships the *schema*, not
+> data. To copy your current bank questions / learning objectives / exams to the
+> new server, transfer a database dump separately (`php artisan db:backup` here →
+> import there). A full dump also contains student accounts + submissions (PII) —
+> move only what you intend to.
+
 ## 5. Build the frontend (once, on a machine with Node)
 ```bash
 npm install
