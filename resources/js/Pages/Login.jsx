@@ -1,5 +1,6 @@
 import { LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
+import { getLang, setLang, t } from '../lib/i18n';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -41,14 +42,19 @@ export default function Login() {
                         <ShieldCheck size={24} aria-hidden />
                     </div>
                     <div>
-                        <h1>Exam Dashboard</h1>
-                        <p>Sign in with your account to continue.</p>
+                        <h1>{t('Exam Dashboard')}</h1>
+                        <p>{t('Sign in with your account to continue.')}</p>
                     </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, fontSize: 12 }}>
+                    <button type="button" className="inline-link-button" onClick={() => setLang('id')} style={{ fontWeight: getLang() === 'id' ? 700 : 400 }}>ID</button>
+                    <button type="button" className="inline-link-button" onClick={() => setLang('en')} style={{ fontWeight: getLang() === 'en' ? 700 : 400 }}>EN</button>
                 </div>
 
                 <form className="login-form" onSubmit={onSubmit}>
                     <label>
-                        Username
+                        {t('Username')}
                         <input
                             autoComplete="username"
                             value={username}
@@ -59,7 +65,7 @@ export default function Login() {
                     </label>
 
                     <label>
-                        Password
+                        {t('Password')}
                         <input
                             type="password"
                             autoComplete="current-password"
@@ -69,11 +75,11 @@ export default function Login() {
                         />
                     </label>
 
-                    {error ? <p className="form-error">{error}</p> : null}
+                    {error ? <p className="form-error">{t(error)}</p> : null}
 
                     <button className="primary-button" type="submit" disabled={loading}>
                         <LockKeyhole size={18} aria-hidden />
-                        {loading ? 'Signing in...' : 'Sign in'}
+                        {loading ? t('Signing in…') : t('Sign in')}
                     </button>
                 </form>
             </section>

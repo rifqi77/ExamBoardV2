@@ -1,6 +1,7 @@
 import { CheckCircle2, CircleX, Clock, PlayCircle } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import { t } from '../../lib/i18n';
 
 export default function Hub({ submissions }) {
     const [token, setToken] = useState('');
@@ -39,40 +40,40 @@ export default function Hub({ submissions }) {
         <AppLayout>
             <header className="teacher-page-header">
                 <div>
-                    <h1>My exams</h1>
-                    <p>Start an exam or review your past scores.</p>
+                    <h1>{t('My exams')}</h1>
+                    <p>{t('Start an exam or review your past scores.')}</p>
                 </div>
             </header>
 
             <section className="admin-panel">
                 <div className="section-title-row">
                     <div>
-                        <h2>Start an exam</h2>
-                        <p style={{ color: 'var(--muted)', margin: 0 }}>Enter the exam token your teacher gave you.</p>
+                        <h2>{t('Start an exam')}</h2>
+                        <p style={{ color: 'var(--muted)', margin: 0 }}>{t('Enter the exam token your teacher gave you.')}</p>
                     </div>
                 </div>
                 <form onSubmit={start} style={{ display: 'flex', gap: 8, maxWidth: 420, marginTop: 12 }}>
                     <input
-                        placeholder="EXAM TOKEN"
+                        placeholder={t('EXAM TOKEN')}
                         value={token}
                         onChange={(e) => setToken(e.target.value.toUpperCase())}
                         style={{ flex: 1 }}
                     />
                     <button className="primary-button" type="submit" disabled={busy}>
-                        <PlayCircle size={17} aria-hidden /> {busy ? 'Starting…' : 'Start'}
+                        <PlayCircle size={17} aria-hidden /> {busy ? t('Starting…') : t('Start')}
                     </button>
                 </form>
-                {error ? <p className="form-error" style={{ marginTop: 10 }}>{error}</p> : null}
+                {error ? <p className="form-error" style={{ marginTop: 10 }}>{t(error)}</p> : null}
             </section>
 
             <section className="admin-panel">
-                <div className="section-title-row"><div><h2>My scores</h2></div></div>
+                <div className="section-title-row"><div><h2>{t('My scores')}</h2></div></div>
                 {submissions.length === 0 ? (
-                    <p style={{ color: 'var(--muted)', margin: 0 }}>No exams taken yet.</p>
+                    <p style={{ color: 'var(--muted)', margin: 0 }}>{t('No exams taken yet.')}</p>
                 ) : (
                     <table className="dashboard-table">
                         <thead>
-                            <tr><th>Exam</th><th>Score</th><th>Status</th><th>Submitted</th><th></th></tr>
+                            <tr><th>{t('Exam')}</th><th>{t('Score')}</th><th>{t('Status')}</th><th>{t('Submitted')}</th><th></th></tr>
                         </thead>
                         <tbody>
                             {submissions.map((s, i) => (
@@ -81,15 +82,15 @@ export default function Hub({ submissions }) {
                                     <td>{s.percentScore}%</td>
                                     <td>
                                         {s.pendingEssayCount > 0 ? (
-                                            <span className="status-item warning"><Clock size={14} aria-hidden /> Pending grading</span>
+                                            <span className="status-item warning"><Clock size={14} aria-hidden /> {t('Pending grading')}</span>
                                         ) : s.passed ? (
-                                            <span className="status-item neutral"><CheckCircle2 size={14} aria-hidden /> Passed</span>
+                                            <span className="status-item neutral"><CheckCircle2 size={14} aria-hidden /> {t('Passed')}</span>
                                         ) : (
-                                            <span className="status-item warning"><CircleX size={14} aria-hidden /> Not passed</span>
+                                            <span className="status-item warning"><CircleX size={14} aria-hidden /> {t('Not passed')}</span>
                                         )}
                                     </td>
                                     <td>{s.submittedAt ? new Date(s.submittedAt).toLocaleString() : '—'}</td>
-                                    <td>{s.id ? <a className="ghost-button" href={'/student/result/' + s.id}>View</a> : null}</td>
+                                    <td>{s.id ? <a className="ghost-button" href={'/student/result/' + s.id}>{t('View')}</a> : null}</td>
                                 </tr>
                             ))}
                         </tbody>

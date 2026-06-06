@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { getLang, setLang, t } from '../lib/i18n';
 import { Activity, BarChart3, BookOpenCheck, Clock, FileText, Home, Library, LogOut, ScrollText, Settings, ShieldCheck, Sparkles, Target, Users } from 'lucide-react';
 
 // Role nav. Only built routes are listed for now; grows per module.
@@ -80,19 +81,19 @@ export default function AppLayout({ children }) {
                         <ShieldCheck size={18} aria-hidden />
                     </div>
                     <div>
-                        <strong>Exam Dashboard</strong>
-                        <p>{ROLE_TITLE[role]}</p>
+                        <strong>{t('Exam Dashboard')}</strong>
+                        <p>{t(ROLE_TITLE[role])}</p>
                     </div>
                 </div>
 
                 <nav className="teacher-nav">
                     {groups.map((g) => (
                         <div className="nav-group" key={g.label}>
-                            <span className="nav-group-label">{g.label}</span>
+                            <span className="nav-group-label">{t(g.label)}</span>
                             {g.items.map(([label, href, Icon]) => (
                                 <Link key={href} href={href} className={path === href ? 'active' : ''}>
                                     <Icon size={17} aria-hidden />
-                                    {label}
+                                    {t(label)}
                                 </Link>
                             ))}
                         </div>
@@ -103,11 +104,16 @@ export default function AppLayout({ children }) {
                     <div className="teacher-user-card">
                         <strong>{user?.fullName}</strong>
                         <span>{user?.username}</span>
-                        <span className={`teacher-subject-pill ${role}`}>{ROLE_PILL[role]}</span>
+                        <span className={`teacher-subject-pill ${role}`}>{t(ROLE_PILL[role])}</span>
                     </div>
                     <button className="ghost-button" type="button" onClick={onLogout}>
-                        <LogOut size={15} aria-hidden /> Sign out
+                        <LogOut size={15} aria-hidden /> {t('Sign out')}
                     </button>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8, fontSize: 12, alignItems: 'center' }}>
+                        <span style={{ color: 'var(--muted)' }}>{t('Language')}:</span>
+                        <button type="button" className="inline-link-button" onClick={() => setLang('id')} style={{ fontWeight: getLang() === 'id' ? 700 : 400 }}>ID</button>
+                        <button type="button" className="inline-link-button" onClick={() => setLang('en')} style={{ fontWeight: getLang() === 'en' ? 700 : 400 }}>EN</button>
+                    </div>
                 </div>
             </aside>
 

@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Save, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MarkdownContent from '../../Components/MarkdownContent';
+import { t } from '../../lib/i18n';
 
 const AUTOSAVE_INTERVAL_MS = 15_000;
 const CHANGE_DEBOUNCE_MS = 800;
@@ -73,9 +74,9 @@ function QuestionInput({ q, value, onChange }) {
     }
     if (q.type === 'essay') {
         return <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={8}
-            style={{ width: '100%', boxSizing: 'border-box' }} placeholder="Write your answer…" />;
+            style={{ width: '100%', boxSizing: 'border-box' }} placeholder={t('Write your answer…')} />;
     }
-    return <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder="Your answer"
+    return <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={t('Your answer')}
         style={{ width: '100%', maxWidth: 360 }} inputMode={q.type === 'numeric' ? 'decimal' : 'text'} />;
 }
 
@@ -260,7 +261,7 @@ export default function Take({ examId }) {
 
     async function submitExam(auto) {
         if (submittedRef.current) return;
-        if (!auto && !window.confirm('Submit your exam? You cannot change answers after this.')) return;
+        if (!auto && !window.confirm(t('Submit your exam? You cannot change answers after this.'))) return;
         submittedRef.current = true;
         setSubmitting(true);
         if (flushInFlightRef.current) { try { await flushInFlightRef.current; } catch { /* ignore */ } }
@@ -288,13 +289,13 @@ export default function Take({ examId }) {
         return (
             <div style={pad}>
                 <ShieldCheck size={34} aria-hidden style={{ color: '#6366f1' }} />
-                <h1>Safe Exam Browser required</h1>
+                <h1>{t('Safe Exam Browser required')}</h1>
                 <p style={{ color: '#52525b' }}>
                     This exam runs in strict mode with SEB enforcement enabled. Open the <code>.seb</code> config
                     file your teacher provided to launch Safe Exam Browser, then return here.
                 </p>
                 <p>Don&apos;t have SEB? <a href="https://safeexambrowser.org/" target="_blank" rel="noreferrer">Download from safeexambrowser.org</a>.</p>
-                <a className="ghost-button" href="/student">Back to my exams</a>
+                <a className="ghost-button" href="/student">{t('Back to my exams')}</a>
             </div>
         );
     }
@@ -302,18 +303,18 @@ export default function Take({ examId }) {
         return (
             <div style={pad}>
                 <AlertTriangle size={34} aria-hidden style={{ color: '#b42318' }} />
-                <h1>Exam unavailable</h1>
+                <h1>{t('Exam unavailable')}</h1>
                 <p className="form-error">{error}</p>
-                <a className="ghost-button" href="/student">Back to my exams</a>
+                <a className="ghost-button" href="/student">{t('Back to my exams')}</a>
             </div>
         );
     }
-    if (!data) return <div style={{ ...pad, textAlign: 'left' }}>Loading exam…</div>;
+    if (!data) return <div style={{ ...pad, textAlign: 'left' }}>{t('Loading exam…')}</div>;
 
     const mm = String(Math.floor((remaining ?? 0) / 60)).padStart(2, '0');
     const ss = String((remaining ?? 0) % 60).padStart(2, '0');
     const q = questions[currentIndex];
-    const saveLabel = { idle: '', dirty: 'Unsaved…', saving: 'Saving…', saved: 'Saved', error: 'Save failed' }[saveState];
+    const saveLabel = { idle: '', dirty: t('Unsaved…'), saving: t('Saving…'), saved: t('Saved'), error: t('Save failed') }[saveState];
 
     return (
         <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 860, margin: '0 auto', padding: '0 16px 100px', userSelect: strict ? 'none' : 'auto' }}>
@@ -321,9 +322,9 @@ export default function Take({ examId }) {
                 <div>
                     <strong>{data.metadata.name}</strong>
                     <div style={{ color: '#71717a', fontSize: 13 }}>
-                        Pass mark {data.metadata.passingGrade}% · {answeredCount}/{questions.length} answered
+                        {t('Pass mark')} {data.metadata.passingGrade}% · {answeredCount}/{questions.length} {t('answered')}
                         {saveLabel ? <> · <span style={{ color: saveState === 'error' ? '#b42318' : '#16a34a' }}>{saveLabel}</span></> : null}
-                        {strict ? <> · <span title="Strict mode: activity is monitored">🔒 monitored</span></> : null}
+                        {strict ? <> · <span title="Strict mode: activity is monitored">🔒 {t('monitored')}</span></> : null}
                     </div>
                 </div>
                 <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 24, fontWeight: 700, color: (remaining ?? 0) < 60 ? '#b42318' : '#18181b' }}>
@@ -340,7 +341,7 @@ export default function Take({ examId }) {
             {q ? (
                 <div className="admin-panel" style={{ marginTop: 16 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <strong>Question {q.position} of {questions.length}</strong>
+                        <strong>{t('Question')} {q.position} {t('of')} {questions.length}</strong>
                         <span style={{ color: '#71717a', fontSize: 13 }}>{q.topic ? q.topic + ' · ' : ''}{q.points} pt</span>
                     </div>
                     <MarkdownContent>{q.prompt}</MarkdownContent>
@@ -354,20 +355,20 @@ export default function Take({ examId }) {
             <div style={{ display: 'flex', gap: 10, marginTop: 16, alignItems: 'center' }}>
                 <button className="ghost-button" type="button" disabled={currentIndex === 0}
                     onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}>
-                    <ChevronLeft size={16} aria-hidden /> Prev
+                    <ChevronLeft size={16} aria-hidden /> {t('Prev')}
                 </button>
                 <button className="ghost-button" type="button" disabled={currentIndex >= questions.length - 1}
                     onClick={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))}>
-                    Next <ChevronRight size={16} aria-hidden />
+                    {t('Next')} <ChevronRight size={16} aria-hidden />
                 </button>
                 <button className="ghost-button" type="button" onClick={() => saveDraft()} style={{ marginLeft: 'auto' }}>
-                    <Save size={15} aria-hidden /> Save progress
+                    <Save size={15} aria-hidden /> {t('Save progress')}
                 </button>
             </div>
 
             {/* Question navigation palette */}
             <div className="admin-panel" style={{ marginTop: 16 }}>
-                <div style={{ fontSize: 13, color: '#71717a', marginBottom: 8 }}>Jump to question</div>
+                <div style={{ fontSize: 13, color: '#71717a', marginBottom: 8 }}>{t('Jump to question')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {questions.map((qq, i) => {
                         const answered = isAnswered(answers[qq.id]);
@@ -390,7 +391,7 @@ export default function Take({ examId }) {
 
             <div style={{ marginTop: 24 }}>
                 <button className="primary-button" onClick={() => submitExam(false)} disabled={submitting}>
-                    <CheckCircle2 size={16} aria-hidden /> {submitting ? 'Submitting…' : 'Submit exam'}
+                    <CheckCircle2 size={16} aria-hidden /> {submitting ? t('Submitting…') : t('Submit exam')}
                 </button>
             </div>
         </div>
