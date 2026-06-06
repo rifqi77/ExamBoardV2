@@ -259,6 +259,9 @@ function QuestionForm({ examId, existing, onClose }) {
         if (typeof ex.correctAnswer === 'string') return ex.correctAnswer;
         return '';
     });
+    const [rubricText, setRubricText] = useState(() => (
+        Array.isArray(ex?.rubric) ? ex.rubric.map((c) => `${c.criterion} | ${c.points ?? ''}`).join('\n') : ''
+    ));
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
 
@@ -275,6 +278,12 @@ function QuestionForm({ examId, existing, onClose }) {
         else if (needsText) correctAnswer = correctText;
         const payload = { type, topic, prompt, points: Number(points), explanationText: expl, correctAnswer };
         if (isChoice) payload.options = options.filter((o) => o.text.trim() !== '');
+        if (type === 'essay') {
+            payload.rubric = rubricText.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
+                const [criterion, pts] = l.split('|').map((x) => x.trim());
+                return { criterion, points: pts ? Number(pts) : null };
+            }).filter((r) => r.criterion);
+        }
         const url = ex ? '/api/teacher/questions/' + ex.id : '/api/teacher/exams/' + examId + '/questions';
         try {
             const res = await fetch(url, {
@@ -335,6 +344,14 @@ function QuestionForm({ examId, existing, onClose }) {
             {needsText ? (
                 <label>Correct answer
                     <input value={correctText} onChange={(e) => setCorrectText(e.target.value)} placeholder={type === 'numeric' ? 'e.g. 3.14' : 'expected text'} />
+                </label>
+            ) : null}
+
+            {type === 'essay' ? (
+                <label>Grading rubric (optional — one per line: <code>criterion | points</code>)
+                    <textarea rows={3} value={rubricText} onChange={(e) => setRubricText(e.target.value)}
+                        placeholder={'Identifies the correct force | 2\nExplains the mechanism clearly | 3'} />
+                    <small style={{ color: 'var(--muted)' }}>Fed to AI-assisted grading and shown on the grade page.</small>
                 </label>
             ) : null}
 

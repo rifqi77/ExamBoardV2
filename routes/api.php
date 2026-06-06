@@ -39,6 +39,8 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/exams/{examId}/seb', [ExamDetailController::class, 'saveSeb']);
     Route::get('/teacher/exams/{examId}/seb-config', [ExamDetailController::class, 'sebConfig']);
     Route::post('/teacher/submissions/{submissionId}/grade', [TeacherGradeController::class, 'grade']);
+    Route::post('/teacher/submissions/{submissionId}/suggest-grades', [TeacherGradeController::class, 'suggest']);
+    Route::get('/teacher/exams/{examId}/grading-quality', [TeacherGradeController::class, 'quality']);
     Route::post('/teacher/exams', [ExamAuthorController::class, 'createExam']);
     Route::post('/teacher/exams/{examId}/settings', [ExamAuthorController::class, 'updateExam']);
     Route::post('/teacher/exams/{examId}/questions', [ExamAuthorController::class, 'addQuestion']);

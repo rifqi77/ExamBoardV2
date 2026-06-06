@@ -20,5 +20,6 @@ class ExamQuestion extends Model
         'options' => 'array',
         'correct_answer' => 'array',
         'explanation_media' => 'array',
+        'rubric' => 'array',
     ];
 }

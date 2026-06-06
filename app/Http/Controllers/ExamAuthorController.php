@@ -99,6 +99,7 @@ class ExamAuthorController extends Controller
             'points' => $shaped['points'],
             'correct_answer' => $shaped['correct'],
             'explanation_text' => $shaped['expl'],
+            'rubric' => $shaped['rubric'],
         ]);
 
         return response()->json(['ok' => true, 'position' => $nextPos]);
@@ -129,6 +130,7 @@ class ExamAuthorController extends Controller
             'points' => $shaped['points'],
             'correct_answer' => $shaped['correct'],
             'explanation_text' => $shaped['expl'],
+            'rubric' => $shaped['rubric'],
         ])->save();
         return response()->json(['ok' => true]);
     }
@@ -325,6 +327,22 @@ class ExamAuthorController extends Controller
             $correct = (float) $b['correctAnswer'];
         }
 
-        return compact('type', 'topic', 'prompt', 'points', 'options', 'correct', 'expl');
+        // Optional grading rubric for essays (used by AI-assisted grading).
+        $rubric = null;
+        if ($type === 'essay' && is_array($b['rubric'] ?? null)) {
+            $rubric = [];
+            foreach ($b['rubric'] as $c) {
+                $crit = is_array($c) ? trim((string) ($c['criterion'] ?? '')) : '';
+                if ($crit === '') {
+                    continue;
+                }
+                $rubric[] = ['criterion' => mb_substr($crit, 0, 200), 'points' => is_numeric($c['points'] ?? null) ? (float) $c['points'] : null];
+            }
+            if (! $rubric) {
+                $rubric = null;
+            }
+        }
+
+        return compact('type', 'topic', 'prompt', 'points', 'options', 'correct', 'expl', 'rubric');
     }
 }

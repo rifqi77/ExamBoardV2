@@ -24,6 +24,7 @@ class ExamSubmission extends Model
         'manual_scores' => 'array',
         'anti_cheat_events' => 'array',
         'review_items' => 'array',
+        'grading_suggestions' => 'array',
         'submitted_at' => 'datetime',
         'graded_at' => 'datetime',
     ];
