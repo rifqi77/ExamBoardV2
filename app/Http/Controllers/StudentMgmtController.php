@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserCredential;
 use App\Services\Audit;
-use App\Services\CryptoSecrets;
 use App\Services\StudentCredentials;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -46,7 +45,6 @@ class StudentMgmtController extends Controller
             UserCredential::create([
                 'user_id' => $id,
                 'password_hash' => Hash::make($password),
-                'password_plain' => CryptoSecrets::encryptStudentPassword($password),
                 'password_set_by' => $u->id,
                 'password_set_at' => now(),
                 'failed_attempts' => 0,
@@ -121,7 +119,6 @@ class StudentMgmtController extends Controller
                 ['user_id' => $t->id],
                 [
                     'password_hash' => Hash::make($pw),
-                    'password_plain' => CryptoSecrets::encryptStudentPassword($pw),
                     'password_set_by' => $u->id,
                     'password_set_at' => now(),
                     'failed_attempts' => 0,

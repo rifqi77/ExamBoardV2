@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserCredential;
-use App\Services\CryptoSecrets;
 use App\Services\StudentCredentials;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -105,7 +104,6 @@ class ImportController extends Controller
                         UserCredential::create([
                             'user_id' => $uid,
                             'password_hash' => Hash::make($password),
-                            'password_plain' => CryptoSecrets::encryptStudentPassword($password),
                             'password_set_by' => $u->id,
                             'password_set_at' => now(),
                             'failed_attempts' => 0,

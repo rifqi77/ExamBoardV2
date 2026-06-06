@@ -126,7 +126,7 @@ export default function Students({ groups }) {
             <header className="teacher-page-header">
                 <div>
                     <h1>Students</h1>
-                    <p>{total} student{total === 1 ? '' : 's'} across {groups.length} class{groups.length === 1 ? '' : 'es'}.</p>
+                    <p>{total} student{total === 1 ? '' : 's'} across {groups.length} class{groups.length === 1 ? '' : 'es'}. Passwords are shown once at create/import — use <strong>Reset passwords</strong> to issue a new one.</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <input ref={fileRef} type="file" accept=".xlsx" hidden onChange={onFile} />
@@ -209,14 +209,13 @@ export default function Students({ groups }) {
                             </label>
                         </div>
                         <table className="dashboard-table">
-                            <thead><tr><th style={{ width: 32 }}></th><th>Student</th><th>Status</th><th>Password</th><th>Submissions</th></tr></thead>
+                            <thead><tr><th style={{ width: 32 }}></th><th>Student</th><th>Status</th><th>Submissions</th></tr></thead>
                             <tbody>
                                 {g.students.map((s) => (
                                     <tr key={s.userId}>
                                         <td><input type="checkbox" checked={sel.has(s.userId)} onChange={() => toggle(s.userId)} /></td>
                                         <td><strong>{s.fullName}</strong><div style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>{s.username}</div></td>
                                         <td>{s.active ? <span className="status-item neutral"><UserCheck size={14} aria-hidden /> Active</span> : <span className="status-item warning"><UserX size={14} aria-hidden /> Inactive</span>}</td>
-                                        <td>{s.passwordPlain ? <code>{s.passwordPlain}</code> : <span style={{ color: 'var(--muted)' }}>—</span>}</td>
                                         <td>{s.submissions}</td>
                                     </tr>
                                 ))}

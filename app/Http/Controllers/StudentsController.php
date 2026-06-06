@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ExamSubmission;
 use App\Models\User;
-use App\Services\CryptoSecrets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -25,8 +24,6 @@ class StudentsController extends Controller
 
         $subCounts = ExamSubmission::whereIn('user_id', $ids)
             ->selectRaw('user_id, count(*) as c')->groupBy('user_id')->pluck('c', 'user_id');
-        $pwRaw = DB::table('user_credentials')->whereIn('user_id', $ids)
-            ->pluck('password_plain', 'user_id');
 
         $classes = DB::table('student_classes')
             ->when($isTeacher, fn ($q) => $q->where('created_by', $u->id))
@@ -40,8 +37,6 @@ class StudentsController extends Controller
             'fullName' => $s->full_name,
             'active' => (bool) $s->active,
             'submissions' => (int) ($subCounts[$s->id] ?? 0),
-            'passwordPlain' => CryptoSecrets::decryptStudentPassword($pwRaw[$s->id] ?? null)
-                ?? $this->derivePassword($s->username, $s->created_at),
         ];
 
         $placed = [];
@@ -64,18 +59,6 @@ class StudentsController extends Controller
         }
 
         return Inertia::render('Teacher/Students', ['groups' => $groups]);
-    }
-
-    // Generator-pattern students (username "<nickname><3 digits>") get a
-    // predictable "<nickname><enrolment-year>" password even when the
-    // plaintext was never captured — mirrors the Next app's fallback.
-    private function derivePassword(string $username, $createdAt): ?string
-    {
-        if (preg_match('/^([a-z]+)\d{3}$/', $username, $m) && strlen($m[1]) >= 2) {
-            $year = $createdAt ? \Illuminate\Support\Carbon::parse($createdAt)->format('Y') : date('Y');
-            return $m[1].$year;
-        }
-        return null;
     }
 }
 
