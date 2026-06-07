@@ -37,6 +37,13 @@ class Doctor extends Command
             $this->check('Database connection', 'FAIL', substr($e->getMessage(), 0, 80));
         }
 
+        // Least-privilege DB account (root/no-password is the unsafe default).
+        $dbUser = (string) config('database.connections.'.config('database.default').'.username');
+        $dbPass = (string) config('database.connections.'.config('database.default').'.password');
+        $this->check('DB least-privilege user', ($dbUser !== 'root' && $dbPass !== '') ? 'PASS' : 'WARN', $dbUser === 'root'
+            ? 'connected as root — run database/sql/create-db-user.sql'
+            : ($dbPass === '' ? "user '{$dbUser}' has empty password" : "user '{$dbUser}'"));
+
         // Secrets.
         $this->check('APP_KEY set', config('app.key') ? 'PASS' : 'FAIL', config('app.key') ? '' : 'run: php artisan key:generate');
         $secret = (string) env('SESSION_SECRET');

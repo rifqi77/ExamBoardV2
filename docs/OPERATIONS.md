@@ -84,3 +84,18 @@ C:\xampp\mysql\bin\mysql.exe -u root secure_exam < secure_exam-20260607-010000.s
 - `php artisan app:doctor` — green before every exam day.
 - Watch `storage/logs/laravel.log` (and `storage/logs/schedule.log`).
 - Review the in-app **Audit log** after high-stakes exams.
+
+## 5. Database account (least privilege)
+
+Don't run the app as MySQL `root`. Create a scoped account once:
+
+```bat
+REM 1. edit the password inside the file, then:
+C:\xampp\mysql\bin\mysql.exe -u root < database\sql\create-db-user.sql
+REM 2. set DB_USERNAME=examboard + DB_PASSWORD=... in .env
+php artisan config:clear && php artisan app:doctor
+```
+
+`app:doctor` warns (**DB least-privilege user**) while you're still on root.
+The grant is scoped to the ExamBoard schema only — no access to other
+databases and no server-admin rights.
