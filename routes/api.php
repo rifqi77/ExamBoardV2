@@ -12,7 +12,7 @@ use App\Http\Controllers\TeacherGradeController;
 use Illuminate\Support\Facades\Route;
 
 // Public
-Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // Authenticated (JWT cookie, same as the Next app)
 Route::middleware('jwt.auth')->group(function () {
@@ -22,7 +22,7 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/admin/impersonate/stop', [\App\Http\Controllers\ImpersonationController::class, 'stop']);
 
     // Student exam-taking flow
-    Route::post('/exam-access/validate', [ExamTakeController::class, 'validateToken']);
+    Route::post('/exam-access/validate', [ExamTakeController::class, 'validateToken'])->middleware('throttle:token');
     Route::get('/exams/{examId}', [ExamTakeController::class, 'show']);
     Route::post('/exams/{examId}/draft', [ExamTakeController::class, 'draft']);
     Route::post('/exams/{examId}/events', [ExamTakeController::class, 'events']);
@@ -39,7 +39,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/exams/{examId}/seb', [ExamDetailController::class, 'saveSeb']);
     Route::get('/teacher/exams/{examId}/seb-config', [ExamDetailController::class, 'sebConfig']);
     Route::post('/teacher/submissions/{submissionId}/grade', [TeacherGradeController::class, 'grade']);
-    Route::post('/teacher/submissions/{submissionId}/suggest-grades', [TeacherGradeController::class, 'suggest']);
+    Route::post('/teacher/submissions/{submissionId}/suggest-grades', [TeacherGradeController::class, 'suggest'])->middleware('throttle:ai');
     Route::get('/teacher/exams/{examId}/grading-quality', [TeacherGradeController::class, 'quality']);
     Route::post('/teacher/exams', [ExamAuthorController::class, 'createExam']);
     Route::post('/teacher/exams/{examId}/settings', [ExamAuthorController::class, 'updateExam']);
@@ -66,7 +66,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/submissions/{submissionId}/delete', [ScoreToolsController::class, 'deleteSubmission']);
     Route::post('/teacher/submissions/bulk-delete', [ScoreToolsController::class, 'bulkDelete']);
     Route::get('/teacher/ai-generate/status', [\App\Http\Controllers\AiGenerateController::class, 'status']);
-    Route::post('/teacher/ai-generate/run', [\App\Http\Controllers\AiGenerateController::class, 'run']);
+    Route::post('/teacher/ai-generate/run', [\App\Http\Controllers\AiGenerateController::class, 'run'])->middleware('throttle:ai');
     // Learning objectives
     Route::post('/teacher/learning-objectives', [\App\Http\Controllers\LearningObjectivesController::class, 'upload']);
     Route::post('/teacher/learning-objectives/bulk-delete', [\App\Http\Controllers\LearningObjectivesController::class, 'bulkDelete']);
