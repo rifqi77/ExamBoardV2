@@ -12,12 +12,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // The session cookie is a raw JWT shared with the Next.js app —
-        // keep Laravel from encrypting/decrypting it.
-        $middleware->encryptCookies(except: ['secure-exam-session', 'secure-exam-access']);
+        // The session cookie is a raw JWT shared with the Next.js app, and the
+        // CSRF cookie must be readable by the SPA — keep Laravel from
+        // encrypting/decrypting any of them.
+        $middleware->encryptCookies(except: ['secure-exam-session', 'secure-exam-access', 'eb_csrf']);
 
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\IssueCsrfCookie::class,
+        ]);
+
+        // Cookie-based auth ⇒ every state-changing API call must prove same-origin.
+        $middleware->api(append: [
+            \App\Http\Middleware\VerifyCsrfHeader::class,
         ]);
 
         $middleware->alias([
