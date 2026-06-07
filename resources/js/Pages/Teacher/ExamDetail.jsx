@@ -149,6 +149,7 @@ function ExamSettingsPanel({ exam }) {
     const [instructions, setInstructions] = useState(exam.generalInstructions || '');
     const [shuffleQ, setShuffleQ] = useState(Boolean(exam.shuffleQuestions));
     const [shuffleO, setShuffleO] = useState(Boolean(exam.shuffleOptions));
+    const [allowReview, setAllowReview] = useState(Boolean(exam.allowAnswerReview));
     const [drawCount, setDrawCount] = useState(exam.drawCount ?? 0);
     const [subject, setSubject] = useState(exam.subject || '');
     const [mediaBase, setMediaBase] = useState(exam.mediaBaseUrl || '');
@@ -164,6 +165,7 @@ function ExamSettingsPanel({ exam }) {
         const payload = {
             name, durationMinutes: Number(duration), passingGrade: Number(passing), examMode: mode, active,
             generalInstructions: instructions, shuffleQuestions: shuffleQ, shuffleOptions: shuffleO,
+            allowAnswerReview: allowReview,
             subject, mediaBaseUrl: mediaBase, startTime: startTime || '', endTime: endTime || '',
             drawCount: Number(drawCount) || 0,
         };
@@ -226,6 +228,9 @@ function ExamSettingsPanel({ exam }) {
                 </label>
                 <label style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <input type="checkbox" checked={shuffleO} onChange={(e) => setShuffleO(e.target.checked)} /> Shuffle options
+                </label>
+                <label style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <input type="checkbox" checked={allowReview} onChange={(e) => setAllowReview(e.target.checked)} /> Let students review answers after submit
                 </label>
             </div>
             <label style={{ maxWidth: 360 }}>Questions drawn per student (0 = all{exam.questionCount ? ` ${exam.questionCount}` : ''})

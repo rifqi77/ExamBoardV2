@@ -91,6 +91,7 @@ class ExamDetailController extends Controller
                 'generalInstructions' => $exam->general_instructions ?? '',
                 'shuffleQuestions' => (bool) $exam->shuffle_questions,
                 'shuffleOptions' => (bool) $exam->shuffle_options,
+                'allowAnswerReview' => (bool) $exam->allow_answer_review,
                 'drawCount' => $exam->draw_count,
                 'questionCount' => $questions->count(),
                 'mediaBaseUrl' => $exam->media_base_url,

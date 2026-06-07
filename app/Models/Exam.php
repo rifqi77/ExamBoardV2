@@ -19,6 +19,7 @@ class Exam extends Model
         'shuffle_questions' => 'boolean',
         'shuffle_options' => 'boolean',
         'seb_required' => 'boolean',
+        'allow_answer_review' => 'boolean',
         'draw_count' => 'integer',
         'type_distribution' => 'array',
         'difficulty_distribution' => 'array',

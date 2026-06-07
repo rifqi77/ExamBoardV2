@@ -189,6 +189,9 @@ class ExamAuthorController extends Controller
         if ($r->has('shuffleOptions')) {
             $patch['shuffle_options'] = filter_var($r->input('shuffleOptions'), FILTER_VALIDATE_BOOLEAN);
         }
+        if ($r->has('allowAnswerReview')) {
+            $patch['allow_answer_review'] = filter_var($r->input('allowAnswerReview'), FILTER_VALIDATE_BOOLEAN);
+        }
         if ($r->has('drawCount')) {
             $d = (int) $r->input('drawCount');
             $patch['draw_count'] = $d > 0 ? $d : null; // 0/blank → serve all questions

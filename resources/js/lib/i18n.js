@@ -91,6 +91,10 @@ const id = {
     Topic: 'Topik',
     Correct: 'Benar',
     Submitted: 'Dikumpulkan',
+    'Review answers': 'Tinjau Jawaban',
+    Incorrect: 'Salah',
+    'Correct answer': 'Jawaban benar',
+    Explanation: 'Pembahasan',
 
     // ── My exams (hub) ──
     'My exams': 'Ujian Saya',

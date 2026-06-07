@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExamSubmission;
+use App\Services\AnswerReview;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -48,6 +49,7 @@ class StudentController extends Controller
                 'topicBreakdown' => $sub->topic_breakdown,
                 'submittedAt' => optional($sub->submitted_at)->toIso8601String(),
             ],
+            'review' => AnswerReview::forSubmission($sub),
         ]);
     }
 }
