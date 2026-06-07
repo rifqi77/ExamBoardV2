@@ -12,6 +12,7 @@ use App\Http\Controllers\BlueprintController;
 use App\Http\Controllers\ExamDetailController;
 use App\Http\Controllers\ExamsController;
 use App\Http\Controllers\LearningObjectivesController;
+use App\Http\Controllers\MasteryController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ScoresController;
 use App\Http\Controllers\ScoreToolsController;
@@ -56,6 +57,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::get('/teacher/pending-score', [ScoreToolsController::class, 'pending']);
     Route::get('/teacher/scores/{submissionId}', [TeacherGradeController::class, 'show']);
     Route::get('/teacher/reports', [ReportsController::class, 'index']);
+    Route::get('/teacher/mastery', [MasteryController::class, 'index']);
     Route::get('/teacher/ai-generate', [AiGenerateController::class, 'page']);
     Route::get('/teacher/learning-objectives', [LearningObjectivesController::class, 'page']);
 });
@@ -73,6 +75,7 @@ Route::middleware('jwt.auth:admin')->group(function () {
     Route::get('/admin/pending-score', [ScoreToolsController::class, 'pending']);
     Route::get('/admin/scores/{submissionId}', [TeacherGradeController::class, 'show']);
     Route::get('/admin/reports', [ReportsController::class, 'index']);
+    Route::get('/admin/mastery', [MasteryController::class, 'index']);
     Route::get('/admin/teachers', [AdminTeachersController::class, 'index']);
     Route::get('/admin/analyze', [AdminAnalyzeController::class, 'index']);
     Route::get('/admin/audit', [AuditController::class, 'index']);

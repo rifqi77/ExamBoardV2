@@ -20,6 +20,7 @@ const id = {
     Scores: 'Nilai',
     'Pending grading': 'Menunggu Penilaian',
     Reports: 'Laporan',
+    Mastery: 'Penguasaan',
     Analyze: 'Analisis',
     'AI Generation': 'Pembuatan AI',
     'Learning objectives': 'Tujuan Pembelajaran',

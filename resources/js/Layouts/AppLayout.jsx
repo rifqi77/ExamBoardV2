@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { getLang, setLang, t } from '../lib/i18n';
-import { Activity, BarChart3, BookOpenCheck, Clock, FileText, HeartPulse, Home, Library, LogOut, ScrollText, Settings, ShieldCheck, Sparkles, Target, Users } from 'lucide-react';
+import { Activity, BarChart3, BookOpenCheck, Clock, FileText, Gauge, HeartPulse, Home, Library, LogOut, ScrollText, Settings, ShieldCheck, Sparkles, Target, Users } from 'lucide-react';
 
 // Role nav. Only built routes are listed for now; grows per module.
 const NAV = {
@@ -16,6 +16,7 @@ const NAV = {
             ['Scores', '/admin/scores', BarChart3],
             ['Pending grading', '/admin/pending-score', Clock],
             ['Reports', '/admin/reports', FileText],
+            ['Mastery', '/admin/mastery', Gauge],
             ['Analyze', '/admin/analyze', Activity],
             ['AI Generation', '/admin/ai-generate', Sparkles],
             ['Learning objectives', '/admin/learning-objectives', Target],
@@ -35,6 +36,7 @@ const NAV = {
             ['Scores', '/teacher/scores', BarChart3],
             ['Pending grading', '/teacher/pending-score', Clock],
             ['Reports', '/teacher/reports', FileText],
+            ['Mastery', '/teacher/mastery', Gauge],
             ['AI Generation', '/teacher/ai-generate', Sparkles],
             ['Learning objectives', '/teacher/learning-objectives', Target],
         ] },
