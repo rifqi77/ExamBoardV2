@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Deployment health check. Run after setup / before going live:
@@ -68,6 +69,35 @@ class Doctor extends Command
         $this->check('mysqldump (db:backup)', is_file($bin) ? 'PASS' : 'WARN', is_file($bin) ? $bin : "'{$bin}' not found — set DB_DUMP_BINARY");
         $appDir = storage_path('app');
         $this->check('backups dir writable', is_writable($appDir) ? 'PASS' : 'WARN', is_writable($appDir) ? '' : 'storage/app not writable');
+
+        // Most recent backup age.
+        $backups = glob($appDir.DIRECTORY_SEPARATOR.'backups'.DIRECTORY_SEPARATOR.'*.sql.gz') ?: [];
+        if ($backups) {
+            $age = time() - max(array_map('filemtime', $backups));
+            $this->check('Recent backup (<36h)', $age < 36 * 3600 ? 'PASS' : 'WARN', 'newest '.round($age / 3600, 1).'h ago, '.count($backups).' kept');
+        } else {
+            $this->check('Recent backup (<36h)', 'WARN', 'none yet — run php artisan db:backup');
+        }
+
+        // Scheduler liveness (heartbeat written every minute by schedule:run).
+        $hb = storage_path('app/scheduler-heartbeat');
+        $hbAge = is_file($hb) ? time() - filemtime($hb) : null;
+        $this->check('Scheduler running', ($hbAge !== null && $hbAge < 300) ? 'PASS' : 'WARN', $hbAge === null
+            ? 'no heartbeat — register schedule:run (docs/OPERATIONS.md)'
+            : ($hbAge < 300 ? 'last tick '.$hbAge.'s ago' : 'stale ('.round($hbAge / 60).'m) — is schedule:run firing?'));
+
+        // Queue infrastructure (used by async AI jobs).
+        $qc = (string) config('queue.default');
+        try {
+            $hasJobs = Schema::hasTable('jobs');
+            $failed = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
+            $pending = $hasJobs ? DB::table('jobs')->count() : 0;
+            $this->check('Queue ('.$qc.')', $hasJobs ? ($failed === 0 ? 'PASS' : 'WARN') : 'WARN', $hasJobs
+                ? $pending.' pending, '.$failed.' failed'
+                : 'jobs table missing — run php artisan migrate');
+        } catch (\Throwable $e) {
+            $this->check('Queue ('.$qc.')', 'WARN', substr($e->getMessage(), 0, 50));
+        }
 
         $this->newLine();
         $this->table(['Status', 'Check', 'Detail'], array_map(fn ($r) => [$this->icon($r[0]), $r[1], $r[2]], $this->rows));
