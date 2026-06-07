@@ -1,5 +1,5 @@
 import { AlertTriangle, ShieldCheck, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 
 function fmtAnswer(v) {
@@ -140,6 +140,8 @@ export default function Grade({ submission, questions, scoresBasePath }) {
     const [note, setNote] = useState('');
     const [quality, setQuality] = useState(null);
     const hasEssays = questions.some((q) => q.type === 'essay');
+    const alive = useRef(true);
+    useEffect(() => () => { alive.current = false; }, []);
 
     async function suggest() {
         setBusy(true); setNote('');
@@ -150,10 +152,30 @@ export default function Grade({ submission, questions, scoresBasePath }) {
             });
             const d = await res.json().catch(() => ({}));
             if (!res.ok) { setNote(d.error || 'Suggestion failed.'); setBusy(false); return; }
-            setSuggestions(d.suggestions || {});
-            setNote('AI drafts ready — review each, then Save. You decide the final mark.');
-            setBusy(false);
+            pollSuggest(d.jobId);
         } catch { setNote('Network error.'); setBusy(false); }
+    }
+    async function pollSuggest(jobId) {
+        // Under the sync queue the job is already done on the first poll; with a
+        // worker it streams. Cap at ~5 min as a safety net.
+        for (let i = 0; i < 200; i++) {
+            await new Promise((r) => setTimeout(r, 1500));
+            if (!alive.current) return;
+            let j;
+            try {
+                const res = await fetch('/api/teacher/ai-jobs/' + jobId, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+                j = await res.json();
+            } catch { continue; }
+            if (!alive.current) return;
+            if (j.status === 'done') {
+                setSuggestions(j.result || {});
+                setNote('AI drafts ready — review each, then Save. You decide the final mark.');
+                setBusy(false); return;
+            }
+            if (j.status === 'failed') { setNote(j.error || 'Suggestion failed.'); setBusy(false); return; }
+        }
+        setNote('Still working — ensure the queue worker is running (docs/OPERATIONS.md).');
+        setBusy(false);
     }
     async function checkQuality() {
         try {

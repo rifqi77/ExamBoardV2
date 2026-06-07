@@ -87,4 +87,23 @@ class AssistedGradingTest extends TestCase
         $this->assertArrayHasKey('pValue', $res);
         $this->assertTrue($res['aligned']); // 8/8 and 6/7 are close → aligned
     }
+
+    public function test_suggest_grades_job_runs_async_and_stores_result(): void
+    {
+        $teacher = User::create(['id' => (string) Str::uuid(), 'username' => 'tj', 'full_name' => 'TJ', 'role' => 'teacher', 'active' => true]);
+        $student = User::create(['id' => (string) Str::uuid(), 'username' => 'sj', 'full_name' => 'SJ', 'role' => 'student', 'active' => true]);
+        [, $qid, $subId] = $this->setupExam($teacher->id, $student->id, 'force equals mass times acceleration');
+
+        $job = \App\Models\AiJob::create([
+            'id' => (string) Str::uuid(), 'user_id' => $teacher->id, 'kind' => 'suggest_grades',
+            'status' => 'queued', 'params' => ['submissionId' => $subId, 'runs' => 1],
+        ]);
+        (new \App\Jobs\SuggestGradesJob($job->id))->handle();
+
+        $job->refresh();
+        $this->assertSame('done', $job->status);
+        $this->assertArrayHasKey($qid, $job->result);                       // result carries the suggestions map
+        $this->assertNotNull($job->result[$qid]['suggested']);
+        $this->assertNotNull(ExamSubmission::find($subId)->grading_suggestions); // also persisted on the submission
+    }
 }

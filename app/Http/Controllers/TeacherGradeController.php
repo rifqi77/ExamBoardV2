@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SuggestGradesJob;
+use App\Models\AiJob;
 use App\Models\Exam;
 use App\Models\ExamQuestion;
 use App\Models\ExamSubmission;
-use App\Services\AssistedGrading;
 use App\Services\Audit;
 use App\Services\GradingStats;
 use App\Services\Scoring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class TeacherGradeController extends Controller
@@ -152,8 +154,9 @@ class TeacherGradeController extends Controller
     }
 
     // POST /api/teacher/submissions/{submissionId}/suggest-grades  { runs? }
-    // AI DRAFTS grades for the essays — never finalizes. Persisted so the
-    // chi-square check can compare them to the teacher's final grades.
+    // AI DRAFTS grades for the essays — never finalizes. Runs async (see
+    // SuggestGradesJob); poll /teacher/ai-jobs/{id} for the result. Persisted so
+    // the chi-square check can compare drafts to the teacher's final grades.
     public function suggest(Request $request, string $submissionId)
     {
         $user = $request->attributes->get('authUser');
@@ -164,10 +167,19 @@ class TeacherGradeController extends Controller
         if (! $this->owns($user, Exam::find($sub->exam_id))) {
             return response()->json(['error' => 'Not allowed.'], 403);
         }
-        $runs = (int) $request->input('runs', 3);
-        $suggestions = AssistedGrading::forSubmission($sub, $runs);
+        $runs = max(1, min(10, (int) $request->input('runs', 3)));
+
+        $job = AiJob::create([
+            'id' => (string) Str::uuid(),
+            'user_id' => $user->id,
+            'kind' => 'suggest_grades',
+            'status' => 'queued',
+            'params' => ['submissionId' => $sub->id, 'runs' => $runs],
+        ]);
         Audit::log($request, 'grade.ai_suggest', 'submission', $sub->id, "Ran AI grading suggestions for {$sub->full_name}");
-        return response()->json(['suggestions' => $suggestions]);
+        SuggestGradesJob::dispatch($job->id);
+
+        return response()->json(['jobId' => $job->id]);
     }
 
     // GET /api/teacher/exams/{examId}/grading-quality
