@@ -106,6 +106,18 @@ class Doctor extends Command
             $this->check('Queue ('.$qc.')', 'WARN', substr($e->getMessage(), 0, 50));
         }
 
+        // PHP OPcache — large, free speedup. Reads the shared php.ini that
+        // Apache also uses under XAMPP, so the CLI value is representative.
+        $op = ini_get('opcache.enable');
+        $this->check('OPcache enabled', $op ? 'PASS' : 'WARN', $op ? 'on' : 'enable opcache in php.ini (docs/OPERATIONS.md) — ~2-4x PHP speed');
+
+        // Production caches (config/route/view). Skipped locally — caching
+        // freezes .env, which you don't want while developing.
+        if ($prod) {
+            $cached = app()->configurationIsCached() && app()->routesAreCached();
+            $this->check('Prod caches built', $cached ? 'PASS' : 'WARN', $cached ? 'config + routes cached' : 'run bin/eb-optimize.cmd');
+        }
+
         $this->newLine();
         $this->table(['Status', 'Check', 'Detail'], array_map(fn ($r) => [$this->icon($r[0]), $r[1], $r[2]], $this->rows));
 

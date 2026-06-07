@@ -99,3 +99,38 @@ php artisan config:clear && php artisan app:doctor
 `app:doctor` warns (**DB least-privilege user**) while you're still on root.
 The grant is scoped to the ExamBoard schema only — no access to other
 databases and no server-admin rights.
+
+## 6. Performance (OPcache + caches)
+
+Two cheap, high-impact wins for the production box.
+
+### Enable OPcache (compiles PHP once, ~2–4× faster)
+
+Edit `C:\xampp\php\php.ini`, ensure these are set, then restart Apache:
+
+```ini
+[opcache]
+opcache.enable=1
+opcache.enable_cli=0
+opcache.memory_consumption=192
+opcache.max_accelerated_files=20000
+opcache.validate_timestamps=1
+opcache.revalidate_freq=60
+opcache.jit=tracing
+opcache.jit_buffer_size=64M
+```
+
+`validate_timestamps=1` + `revalidate_freq=60` means code changes are picked up
+within a minute (no manual reset). `app:doctor` reports **OPcache enabled**.
+
+### Build the Laravel caches
+
+After deploy and after any `.env`/config/route change:
+
+```bat
+bin\eb-optimize.cmd
+```
+
+This caches config, routes, views, and events. `app:doctor` reports **Prod
+caches built** (only checked when running in production). To undo for local
+editing: `php artisan optimize:clear`.
