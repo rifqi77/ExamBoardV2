@@ -42,6 +42,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/submissions/{submissionId}/suggest-grades', [TeacherGradeController::class, 'suggest'])->middleware('throttle:ai');
     Route::get('/teacher/exams/{examId}/grading-quality', [TeacherGradeController::class, 'quality']);
     Route::post('/teacher/exams', [ExamAuthorController::class, 'createExam']);
+    Route::post('/teacher/exams/import', [\App\Http\Controllers\ExamImportController::class, 'import']);
     Route::post('/teacher/exams/{examId}/settings', [ExamAuthorController::class, 'updateExam']);
     Route::post('/teacher/exams/{examId}/questions', [ExamAuthorController::class, 'addQuestion']);
     Route::post('/teacher/questions/{questionId}', [ExamAuthorController::class, 'updateQuestion']);
