@@ -1,4 +1,4 @@
-import { KeyRound, Trash2, Upload, UserCheck, UserPlus, UserX } from 'lucide-react';
+import { Clock, KeyRound, Trash2, Upload, UserCheck, UserPlus, UserX } from 'lucide-react';
 import { useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import { parseClassesFromExcel } from '../../lib/excelParser';
@@ -16,6 +16,7 @@ export default function Students({ groups }) {
     const [preview, setPreview] = useState(null);
     const [importYear, setImportYear] = useState('');
     const [importBusy, setImportBusy] = useState(false);
+    const [extraPct, setExtraPct] = useState(25);
 
     async function onFile(e) {
         const file = e.target.files?.[0];
@@ -92,7 +93,7 @@ export default function Students({ groups }) {
         } catch { setError('Network error.'); setBusy(null); }
     }
 
-    async function bulk(action) {
+    async function bulk(action, value) {
         const ids = [...sel];
         if (ids.length === 0) return;
         if (action === 'delete' && !window.confirm(`Permanently delete ${ids.length} student(s) and all their submissions?`)) return;
@@ -104,13 +105,14 @@ export default function Students({ groups }) {
             const res = await fetch('/api/teacher/students/bulk', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify({ action, userIds: ids }),
+                body: JSON.stringify({ action, userIds: ids, ...(value !== undefined ? { value } : {}) }),
                 credentials: 'same-origin',
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) { setError(data.error || 'Failed.'); setBusy(null); return; }
             const n = data.updated ?? data.deleted ?? data.reset ?? ids.length;
-            setMsg(`${n} student(s) ${action === 'delete' ? 'deleted' : action === 'reset' ? 'reset' : action === 'activate' ? 'reactivated' : 'deactivated'}${data.skipped ? ` · ${data.skipped} skipped` : ''}.`);
+            const verb = action === 'delete' ? 'deleted' : action === 'reset' ? 'reset' : action === 'activate' ? 'reactivated' : action === 'extra_time' ? `set to +${data.value}% time` : 'deactivated';
+            setMsg(`${n} student(s) ${verb}${data.skipped ? ` · ${data.skipped} skipped` : ''}.`);
             setSelected(new Set());
             if (action === 'reset' && data.credentials) {
                 setCreds(data.credentials);
@@ -190,6 +192,11 @@ export default function Students({ groups }) {
                     <button className="ghost-button" type="button" onClick={() => bulk('deactivate')} disabled={busy}><UserX size={15} aria-hidden /> Deactivate</button>
                     <button className="ghost-button" type="button" onClick={() => bulk('activate')} disabled={busy}><UserCheck size={15} aria-hidden /> Reactivate</button>
                     <button className="ghost-button danger" type="button" onClick={() => bulk('delete')} disabled={busy}><Trash2 size={15} aria-hidden /> Delete</button>
+                    <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center', borderLeft: '1px solid #e4e4e7', paddingLeft: 10 }}>
+                        <Clock size={15} aria-hidden />
+                        <input type="number" min="0" max="300" value={extraPct} onChange={(e) => setExtraPct(e.target.value)} aria-label="Extra time percent" style={{ width: 64 }} />
+                        <button className="ghost-button" type="button" onClick={() => bulk('extra_time', Number(extraPct) || 0)} disabled={busy}>Set extra time %</button>
+                    </span>
                     <button className="inline-link-button" type="button" onClick={() => setSelected(new Set())} style={{ marginLeft: 'auto' }}>Clear</button>
                 </section>
             ) : null}
@@ -209,13 +216,14 @@ export default function Students({ groups }) {
                             </label>
                         </div>
                         <table className="dashboard-table">
-                            <thead><tr><th style={{ width: 32 }}></th><th>Student</th><th>Status</th><th>Submissions</th></tr></thead>
+                            <thead><tr><th style={{ width: 32 }}></th><th>Student</th><th>Status</th><th>Extra time</th><th>Submissions</th></tr></thead>
                             <tbody>
                                 {g.students.map((s) => (
                                     <tr key={s.userId}>
                                         <td><input type="checkbox" checked={sel.has(s.userId)} onChange={() => toggle(s.userId)} /></td>
                                         <td><strong>{s.fullName}</strong><div style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>{s.username}</div></td>
                                         <td>{s.active ? <span className="status-item neutral"><UserCheck size={14} aria-hidden /> Active</span> : <span className="status-item warning"><UserX size={14} aria-hidden /> Inactive</span>}</td>
+                                        <td>{s.extraTimePercent > 0 ? <span className="status-item neutral"><Clock size={13} aria-hidden /> +{s.extraTimePercent}%</span> : <span style={{ color: 'var(--muted)' }}>—</span>}</td>
                                         <td>{s.submissions}</td>
                                     </tr>
                                 ))}

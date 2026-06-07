@@ -145,11 +145,12 @@ class ExamTakeController extends Controller
 
         $session = $this->findOrCreateSession($user->id, $exam);
 
+        $durationSeconds = self::durationSecondsFor($exam, $user);
         $elapsed = time() - $session->started_at->getTimestamp();
-        $remaining = max(0, $exam->duration_minutes * 60 - $elapsed);
+        $remaining = max(0, $durationSeconds - $elapsed);
 
         // Auto-submit on expiry (server-side fallback).
-        if (! $isAdmin && $elapsed > $exam->duration_minutes * 60) {
+        if (! $isAdmin && $elapsed > $durationSeconds) {
             $res = $this->gradeAndStore($user, $exam, $session, [], false, true);
             return response()->json([
                 'error' => 'Your time is up. Your answers have been submitted automatically.',
@@ -330,7 +331,7 @@ class ExamTakeController extends Controller
         }
 
         $elapsed = time() - $session->started_at->getTimestamp();
-        $isLate = $elapsed > $exam->duration_minutes * 60 + 60;
+        $isLate = $elapsed > self::durationSecondsFor($exam, $user) + 60;
         $answers = $isLate ? [] : (array) $request->input('answers', []);
 
         // Fold the client's final unflushed anti-cheat events into the
@@ -483,6 +484,15 @@ class ExamTakeController extends Controller
      * sendBeacon vs. submit, or two tabs) serialise on the row instead of
      * racing on a stale snapshot. Returns ['added'=>n,'total'=>m].
      */
+    /** Exam duration in seconds, including the student's extra-time accommodation. */
+    public static function durationSecondsFor(Exam $exam, $user): int
+    {
+        $base = (int) $exam->duration_minutes * 60;
+        $pct = max(0, (int) ($user->extra_time_percent ?? 0));
+
+        return (int) round($base * (1 + $pct / 100));
+    }
+
     private function appendEvents(ExamSession $session, array $sanitised): array
     {
         if (! $sanitised) {

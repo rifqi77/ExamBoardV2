@@ -73,10 +73,10 @@ function QuestionInput({ q, value, onChange }) {
         ));
     }
     if (q.type === 'essay') {
-        return <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={8}
+        return <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={8} aria-label={t('Your answer')}
             style={{ width: '100%', boxSizing: 'border-box' }} placeholder={t('Write your answer…')} />;
     }
-    return <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={t('Your answer')}
+    return <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={t('Your answer')} aria-label={t('Your answer')}
         style={{ width: '100%', maxWidth: 360 }} inputMode={q.type === 'numeric' ? 'decimal' : 'text'} />;
 }
 
@@ -87,6 +87,10 @@ export default function Take({ examId }) {
     const [answers, setAnswers] = useState({});
     const [currentIndex, setCurrentIndex] = useState(0);
     const [error, setError] = useState('');
+    const [fontScale, setFontScale] = useState(() => {
+        try { return Number(localStorage.getItem('examFontScale')) || 1; } catch { return 1; }
+    });
+    useEffect(() => { try { localStorage.setItem('examFontScale', String(fontScale)); } catch { /* ignore */ } }, [fontScale]);
     const [sebBlocked, setSebBlocked] = useState(false);
     const [remaining, setRemaining] = useState(null);
     const [saveState, setSaveState] = useState('idle'); // idle|dirty|saving|saved|error
@@ -317,7 +321,7 @@ export default function Take({ examId }) {
     const saveLabel = { idle: '', dirty: t('Unsaved…'), saving: t('Saving…'), saved: t('Saved'), error: t('Save failed') }[saveState];
 
     return (
-        <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 860, margin: '0 auto', padding: '0 16px 100px', userSelect: strict ? 'none' : 'auto' }}>
+        <div style={{ fontFamily: 'system-ui, sans-serif', fontSize: `${fontScale}rem`, maxWidth: 860, margin: '0 auto', padding: '0 16px 100px', userSelect: strict ? 'none' : 'auto' }}>
             <div style={{ position: 'sticky', top: 0, background: '#fff', borderBottom: '1px solid #e4e4e7', padding: '14px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, flexWrap: 'wrap', gap: 8 }}>
                 <div>
                     <strong>{data.metadata.name}</strong>
@@ -327,8 +331,15 @@ export default function Take({ examId }) {
                         {strict ? <> · <span title="Strict mode: activity is monitored">🔒 {t('monitored')}</span></> : null}
                     </div>
                 </div>
-                <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 24, fontWeight: 700, color: (remaining ?? 0) < 60 ? '#b42318' : '#18181b' }}>
-                    {mm}:{ss}
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center' }} role="group" aria-label="Text size">
+                        <button className="ghost-button" type="button" aria-label="Decrease text size" onClick={() => setFontScale((s) => Math.max(0.9, Math.round((s - 0.1) * 10) / 10))}>A−</button>
+                        <button className="ghost-button" type="button" aria-label="Reset text size" onClick={() => setFontScale(1)}>A</button>
+                        <button className="ghost-button" type="button" aria-label="Increase text size" onClick={() => setFontScale((s) => Math.min(1.6, Math.round((s + 0.1) * 10) / 10))}>A+</button>
+                    </div>
+                    <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 24, fontWeight: 700, color: (remaining ?? 0) < 60 ? '#b42318' : '#18181b' }}>
+                        {mm}:{ss}
+                    </div>
                 </div>
             </div>
 

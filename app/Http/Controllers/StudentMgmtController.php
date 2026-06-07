@@ -69,7 +69,7 @@ class StudentMgmtController extends Controller
     {
         $u = $r->attributes->get('authUser');
         $action = $r->input('action');
-        if (! in_array($action, ['deactivate', 'activate', 'reset', 'delete'], true)) {
+        if (! in_array($action, ['deactivate', 'activate', 'reset', 'delete', 'extra_time'], true)) {
             return response()->json(['error' => 'Unknown action.'], 400);
         }
         $ids = array_values(array_unique(array_filter(
@@ -103,6 +103,13 @@ class StudentMgmtController extends Controller
             }
             Audit::log($r, 'student.bulk', null, null, "Bulk {$action} on ".count($allowedIds).' student(s)', ['action' => $action, 'count' => count($allowedIds)]);
             return response()->json(['action' => $action, 'updated' => count($allowedIds), 'skipped' => $skipped]);
+        }
+
+        if ($action === 'extra_time') {
+            $pct = max(0, min(300, (int) $r->input('value', 0)));
+            User::whereIn('id', $allowedIds)->update(['extra_time_percent' => $pct]);
+            Audit::log($r, 'student.bulk', null, null, "Set extra time {$pct}% on ".count($allowedIds).' student(s)', ['action' => 'extra_time', 'value' => $pct, 'count' => count($allowedIds)]);
+            return response()->json(['action' => 'extra_time', 'updated' => count($allowedIds), 'value' => $pct, 'skipped' => $skipped]);
         }
 
         if ($action === 'delete') {

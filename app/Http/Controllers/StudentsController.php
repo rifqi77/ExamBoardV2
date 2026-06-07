@@ -18,7 +18,7 @@ class StudentsController extends Controller
         $students = User::where('role', 'student')
             ->when($isTeacher, fn ($q) => $q->where('created_by', $u->id))
             ->orderBy('full_name')
-            ->get(['id', 'username', 'full_name', 'active', 'created_at']);
+            ->get(['id', 'username', 'full_name', 'active', 'extra_time_percent', 'created_at']);
         $byId = $students->keyBy('id');
         $ids = $students->pluck('id');
 
@@ -36,6 +36,7 @@ class StudentsController extends Controller
             'username' => $s->username,
             'fullName' => $s->full_name,
             'active' => (bool) $s->active,
+            'extraTimePercent' => (int) $s->extra_time_percent,
             'submissions' => (int) ($subCounts[$s->id] ?? 0),
         ];
 
