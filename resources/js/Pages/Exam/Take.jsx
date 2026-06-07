@@ -1,6 +1,8 @@
 import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Save, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MarkdownContent from '../../Components/MarkdownContent';
+import { EssayBlockEditor } from '../../Components/EssayBlockEditor';
+import { parseSubAnswers, parseSubParts, serializeSubAnswers } from '../../lib/subQuestions';
 import { t } from '../../lib/i18n';
 
 const AUTOSAVE_INTERVAL_MS = 15_000;
@@ -73,8 +75,29 @@ function QuestionInput({ q, value, onChange }) {
         ));
     }
     if (q.type === 'essay') {
-        return <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={8} aria-label={t('Your answer')}
-            style={{ width: '100%', boxSizing: 'border-box' }} placeholder={t('Write your answer…')} />;
+        const stored = typeof value === 'string' ? value : '';
+        const parsed = parseSubParts(q.prompt);
+        const isSynthetic = parsed.length === 0;
+        const subParts = isSynthetic ? [{ id: 'a', prompt: '' }] : parsed;
+        let subAnswers = parseSubAnswers(stored);
+        if (!subAnswers) subAnswers = isSynthetic && stored ? { a: stored } : {};
+        const partIds = subParts.map((p) => p.id);
+        return (
+            <div style={{ display: 'grid', gap: 12 }}>
+                {subParts.map((part) => (
+                    <div key={part.id}>
+                        {!isSynthetic ? (
+                            <div style={{ fontWeight: 600, marginBottom: 4 }}>({part.id}) <span style={{ fontWeight: 400 }}>{part.prompt}</span></div>
+                        ) : null}
+                        <EssayBlockEditor
+                            value={subAnswers[part.id] ?? ''}
+                            onChange={(next) => onChange(serializeSubAnswers({ ...subAnswers, [part.id]: next }, partIds))}
+                            ariaLabel={isSynthetic ? t('Your answer') : `Answer for part ${part.id}`}
+                        />
+                    </div>
+                ))}
+            </div>
+        );
     }
     return <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={t('Your answer')} aria-label={t('Your answer')}
         style={{ width: '100%', maxWidth: 360 }} inputMode={q.type === 'numeric' ? 'decimal' : 'text'} />;

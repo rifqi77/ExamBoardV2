@@ -1,6 +1,6 @@
 {
-  "_exceljs.min-D0zvmiAJ.js": {
-    "file": "assets/exceljs.min-D0zvmiAJ.js",
+  "_exceljs.min-CbdgB8J4.js": {
+    "file": "assets/exceljs.min-CbdgB8J4.js",
     "name": "exceljs.min",
     "isDynamicEntry": true,
     "imports": [
@@ -247,6 +247,12 @@
     "file": "assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
     "src": "node_modules/katex/dist/fonts/KaTeX_Typewriter-Regular.woff2"
   },
+  "node_modules/mathlive/mathlive.min.mjs": {
+    "file": "assets/mathlive.min-BO8ny9c0.js",
+    "name": "mathlive.min",
+    "src": "node_modules/mathlive/mathlive.min.mjs",
+    "isDynamicEntry": true
+  },
   "resources/css/app.css": {
     "file": "assets/app-BXkiptvh.css",
     "src": "resources/css/app.css",
@@ -257,14 +263,16 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DLs2Eq58.js",
+    "file": "assets/app-Bt_ijVM4.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
     "dynamicImports": [
-      "_exceljs.min-D0zvmiAJ.js",
-      "_exceljs.min-D0zvmiAJ.js",
-      "_exceljs.min-D0zvmiAJ.js"
+      "node_modules/mathlive/mathlive.min.mjs",
+      "node_modules/mathlive/mathlive.min.mjs",
+      "_exceljs.min-CbdgB8J4.js",
+      "_exceljs.min-CbdgB8J4.js",
+      "_exceljs.min-CbdgB8J4.js"
     ],
     "css": [
       "assets/app-C6Tj-8BX.css"
