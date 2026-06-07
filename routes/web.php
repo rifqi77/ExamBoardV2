@@ -16,6 +16,7 @@ use App\Http\Controllers\ScoresController;
 use App\Http\Controllers\ScoreToolsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentsController;
+use App\Http\Controllers\SystemController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherGradeController;
 use Illuminate\Http\Request;
@@ -72,6 +73,7 @@ Route::middleware('jwt.auth:admin')->group(function () {
     Route::get('/admin/teachers', [AdminTeachersController::class, 'index']);
     Route::get('/admin/analyze', [AdminAnalyzeController::class, 'index']);
     Route::get('/admin/audit', [AuditController::class, 'index']);
+    Route::get('/admin/system', [SystemController::class, 'page']);
     Route::get('/admin/ai-generate', [AiGenerateController::class, 'page']);
     Route::get('/admin/learning-objectives', [LearningObjectivesController::class, 'page']);
     Route::get('/admin/ai-settings', [AiSettingsController::class, 'page']);

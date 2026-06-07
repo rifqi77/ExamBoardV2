@@ -25,6 +25,7 @@ const id = {
     'Learning objectives': 'Tujuan Pembelajaran',
     'AI settings': 'Pengaturan AI',
     'Audit log': 'Log Audit',
+    'System health': 'Kesehatan Sistem',
     Home: 'Beranda',
     'Sign out': 'Keluar',
     'Super admin': 'Super Admin',

@@ -77,6 +77,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
 // Admin-only write actions
 Route::middleware('jwt.auth:admin')->group(function () {
     Route::post('/admin/impersonate/{uid}', [\App\Http\Controllers\ImpersonationController::class, 'start']);
+    Route::get('/admin/system-health', [\App\Http\Controllers\SystemController::class, 'data']);
     Route::post('/admin/teachers', [\App\Http\Controllers\AdminTeachersController::class, 'create']);
     Route::post('/admin/teachers/{uid}', [\App\Http\Controllers\AdminTeachersController::class, 'update']);
     Route::get('/admin/teachers/{uid}/capabilities', [\App\Http\Controllers\AdminTeachersController::class, 'capabilities']);

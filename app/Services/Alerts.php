@@ -22,7 +22,7 @@ class Alerts
 
             // Dedup: Cache::add is atomic — true only the first time within the window.
             $key = 'alert:'.md5($subject);
-            $minutes = (int) (env('ALERT_THROTTLE_MINUTES', 10) ?: 10);
+            $minutes = max(1, (int) config('alerts.throttle_minutes', 10));
             if (Cache::add($key, 1, now()->addMinutes($minutes))) {
                 self::webhook($subject, $body);
                 self::email($subject, $body);
@@ -56,7 +56,7 @@ class Alerts
 
     private static function webhook(string $subject, string $body): void
     {
-        $url = (string) env('ALERT_WEBHOOK_URL', '');
+        $url = (string) (config('alerts.webhook_url') ?? '');
         if ($url === '') {
             return;
         }
@@ -70,7 +70,7 @@ class Alerts
 
     private static function email(string $subject, string $body): void
     {
-        $to = (string) env('ALERT_EMAIL', '');
+        $to = (string) (config('alerts.email') ?? '');
         if ($to === '' || config('mail.default') === 'log') {
             return;
         }

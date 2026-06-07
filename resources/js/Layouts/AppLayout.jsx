@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { getLang, setLang, t } from '../lib/i18n';
-import { Activity, BarChart3, BookOpenCheck, Clock, FileText, Home, Library, LogOut, ScrollText, Settings, ShieldCheck, Sparkles, Target, Users } from 'lucide-react';
+import { Activity, BarChart3, BookOpenCheck, Clock, FileText, HeartPulse, Home, Library, LogOut, ScrollText, Settings, ShieldCheck, Sparkles, Target, Users } from 'lucide-react';
 
 // Role nav. Only built routes are listed for now; grows per module.
 const NAV = {
@@ -23,6 +23,7 @@ const NAV = {
         { label: 'System', items: [
             ['AI settings', '/admin/ai-settings', Settings],
             ['Audit log', '/admin/audit', ScrollText],
+            ['System health', '/admin/system', HeartPulse],
         ] },
     ],
     teacher: [

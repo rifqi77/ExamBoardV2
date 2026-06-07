@@ -119,7 +119,7 @@ class Doctor extends Command
         }
 
         // Failure alerting channel.
-        $hasAlert = env('ALERT_WEBHOOK_URL') || env('ALERT_EMAIL');
+        $hasAlert = config('alerts.webhook_url') || config('alerts.email');
         $this->check('Error alerting', $hasAlert ? 'PASS' : 'WARN', $hasAlert ? 'configured' : 'set ALERT_WEBHOOK_URL to be notified of failures');
 
         $this->newLine();
