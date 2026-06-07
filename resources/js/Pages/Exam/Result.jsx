@@ -1,3 +1,4 @@
+import MarkdownContent from '../../Components/MarkdownContent';
 import AppLayout from '../../Layouts/AppLayout';
 import { t } from '../../lib/i18n';
 
@@ -65,7 +66,7 @@ export default function Result({ submission, review }) {
                     <ol style={{ paddingLeft: 18, display: 'grid', gap: 16, margin: 0 }}>
                         {review.map((q) => (
                             <li key={q.position}>
-                                <div style={{ whiteSpace: 'pre-wrap', fontWeight: 600 }}>{q.prompt}</div>
+                                <div style={{ fontWeight: 600 }}><MarkdownContent>{q.prompt}</MarkdownContent></div>
                                 <div style={{ marginTop: 4 }}>
                                     {q.requiresGrading ? (
                                         <span className="status-item warning">{t('Pending grading')}</span>
@@ -80,7 +81,10 @@ export default function Result({ submission, review }) {
                                     <div style={{ fontSize: 14 }}><strong>{t('Correct answer')}:</strong> {fmtAnswer(q.correctAnswer, q.options)}</div>
                                 ) : null}
                                 {q.explanation ? (
-                                    <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, whiteSpace: 'pre-wrap' }}><strong>{t('Explanation')}:</strong> {q.explanation}</div>
+                                    <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+                                        <strong>{t('Explanation')}:</strong>
+                                        <MarkdownContent>{q.explanation}</MarkdownContent>
+                                    </div>
                                 ) : null}
                             </li>
                         ))}
