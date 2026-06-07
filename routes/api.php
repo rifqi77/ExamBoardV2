@@ -67,6 +67,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/submissions/bulk-delete', [ScoreToolsController::class, 'bulkDelete']);
     Route::get('/teacher/ai-generate/status', [\App\Http\Controllers\AiGenerateController::class, 'status']);
     Route::post('/teacher/ai-generate/run', [\App\Http\Controllers\AiGenerateController::class, 'run'])->middleware('throttle:ai');
+    Route::get('/teacher/ai-jobs/{id}', [\App\Http\Controllers\AiGenerateController::class, 'jobStatus']);
     // Learning objectives
     Route::post('/teacher/learning-objectives', [\App\Http\Controllers\LearningObjectivesController::class, 'upload']);
     Route::post('/teacher/learning-objectives/bulk-delete', [\App\Http\Controllers\LearningObjectivesController::class, 'bulkDelete']);

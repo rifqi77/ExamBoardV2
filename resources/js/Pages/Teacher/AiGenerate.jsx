@@ -1,5 +1,5 @@
 import { Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 
 export default function AiGenerate({ exams, provider, model, imageProvider, keyReady, loTopics = [], subjects = [] }) {
@@ -11,22 +11,46 @@ export default function AiGenerate({ exams, provider, model, imageProvider, keyR
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const [result, setResult] = useState(null);
+    const [progress, setProgress] = useState(null);
+    const alive = useRef(true);
+    useEffect(() => () => { alive.current = false; }, []);
     const up = (k, v) => setF((prev) => ({ ...prev, [k]: v }));
     const imagesAvailable = imageProvider && imageProvider !== 'off';
 
     async function run(e) {
         e.preventDefault();
-        setBusy(true); setError(''); setResult(null);
+        setBusy(true); setError(''); setResult(null); setProgress(null);
         try {
             const res = await fetch('/api/teacher/ai-generate/run', {
                 method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify(f), credentials: 'same-origin',
             });
             const d = await res.json().catch(() => ({}));
-            setBusy(false);
-            if (!res.ok) { setError(d.error || 'Generation failed.'); return; }
-            setResult(d);
+            if (!res.ok) { setError(d.error || 'Generation failed.'); setBusy(false); return; }
+            pollJob(d.jobId);
         } catch { setError('Network error.'); setBusy(false); }
+    }
+
+    async function pollJob(jobId) {
+        // Under the sync queue the job is already done on the first poll; with a
+        // worker, progress streams in. Cap at ~10 min as a safety net.
+        for (let i = 0; i < 400; i++) {
+            await new Promise((r) => setTimeout(r, 1500));
+            if (!alive.current) return;
+            let j;
+            try {
+                const res = await fetch('/api/teacher/ai-jobs/' + jobId, {
+                    headers: { Accept: 'application/json' }, credentials: 'same-origin',
+                });
+                j = await res.json();
+            } catch { continue; } // transient blip — keep polling
+            if (!alive.current) return;
+            if (j.status === 'done') { setResult(j.result); setProgress(null); setBusy(false); return; }
+            if (j.status === 'failed') { setError(j.error || 'Generation failed.'); setProgress(null); setBusy(false); return; }
+            setProgress({ done: j.progress || 0, total: j.total || 0 });
+        }
+        setError('Still generating — if this persists, ensure the queue worker is running (docs/OPERATIONS.md).');
+        setBusy(false);
     }
 
     return (
@@ -106,7 +130,7 @@ export default function AiGenerate({ exams, provider, model, imageProvider, keyR
 
                     {error ? <p className="form-error">{error}</p> : null}
                     <button className="primary-button" type="submit" disabled={busy || !keyReady || (f.target === 'exam' && !f.examId)}>
-                        <Sparkles size={16} aria-hidden /> {busy ? 'Generating…' : f.target === 'bank' ? 'Generate & add to bank' : 'Generate & add to exam'}
+                        <Sparkles size={16} aria-hidden /> {busy ? (progress && progress.total ? `Generating… ${progress.done}/${progress.total}` : 'Generating…') : f.target === 'bank' ? 'Generate & add to bank' : 'Generate & add to exam'}
                     </button>
                 </form>
             </section>
