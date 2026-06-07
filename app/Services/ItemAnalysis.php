@@ -147,6 +147,7 @@ class ItemAnalysis
                 $row['pValue'] = $agg['possible'] > 0 ? round($agg['earned'] / $agg['possible'], 3) : null;
                 $row['discrimination'] = null;
                 $row['flags'] = $agg['pending'] > 0 ? ['ungraded_essays'] : [];
+                $row['verdict'] = self::verdict('essay', $row['pValue'], null, $row['flags']);
                 $row['options'] = [];
                 $items[] = $row;
                 continue;
@@ -182,6 +183,7 @@ class ItemAnalysis
                 $flags[] = 'weak_discrimination';
             }
             $row['flags'] = $flags;
+            $row['verdict'] = self::verdict($q->type, $row['pValue'], $disc, $flags);
 
             // Distractor analysis.
             $opts = [];
@@ -245,6 +247,37 @@ class ItemAnalysis
             'items' => $items,
             'topics' => $topics,
         ];
+    }
+
+    /**
+     * Actionable recommendation for an item, synthesized from its quality flags.
+     * level: keep | review | retire | info. Public + pure so it is unit-testable.
+     */
+    public static function verdict(string $type, ?float $pValue, ?float $discrimination, array $flags): array
+    {
+        if ($type === 'essay') {
+            return in_array('ungraded_essays', $flags, true)
+                ? ['level' => 'info', 'label' => 'Grade pending', 'reason' => 'Some responses are not yet graded.']
+                : ['level' => 'keep', 'label' => 'Keep', 'reason' => 'Manually graded — no item statistics.'];
+        }
+        if (in_array('negative_discrimination', $flags, true)) {
+            return ['level' => 'retire', 'label' => 'Revise or retire', 'reason' => 'Negative discrimination: stronger students did worse — check the answer key and wording.'];
+        }
+        $issues = [];
+        if (in_array('too_hard', $flags, true)) {
+            $issues[] = 'almost everyone got it wrong';
+        }
+        if (in_array('too_easy', $flags, true)) {
+            $issues[] = 'almost everyone got it right';
+        }
+        if (in_array('weak_discrimination', $flags, true)) {
+            $issues[] = 'weak discrimination';
+        }
+        if ($issues) {
+            return ['level' => 'review', 'label' => 'Review', 'reason' => ucfirst(implode('; ', $issues)).'.'];
+        }
+
+        return ['level' => 'keep', 'label' => 'Keep', 'reason' => 'Good difficulty and discrimination.'];
     }
 
     private static function mean(array $a): float

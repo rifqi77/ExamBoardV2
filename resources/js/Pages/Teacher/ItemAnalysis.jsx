@@ -10,6 +10,8 @@ const FLAG_LABELS = {
     ungraded_essays: 'Ungraded essays',
 };
 
+const VERDICT_COLOR = { keep: '#16a34a', review: '#b45309', retire: '#b42318', info: '#3f3f46' };
+
 function alphaVerdict(a) {
     if (a === null || a === undefined) return ['—', ''];
     if (a >= 0.9) return [a.toFixed(2), 'excellent'];
@@ -76,10 +78,11 @@ function ItemRow({ item }) {
                         <span key={f} className="status-item warning" style={{ marginRight: 4 }}><AlertTriangle size={12} aria-hidden /> {FLAG_LABELS[f] || f}</span>
                     ))}
                 </td>
+                <td title={item.verdict?.reason || ''} style={{ color: VERDICT_COLOR[item.verdict?.level] || 'inherit', fontWeight: 600, whiteSpace: 'nowrap' }}>{item.verdict?.label || '—'}</td>
                 <td>{hasOpts ? <button className="ghost-button" type="button" onClick={() => setOpen((v) => !v)}>{open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</button> : null}</td>
             </tr>
             {open && hasOpts ? (
-                <tr><td colSpan={7} style={{ background: '#fafafa' }}>
+                <tr><td colSpan={8} style={{ background: '#fafafa' }}>
                     <div style={{ padding: '6px 10px', fontSize: 13 }}>
                         <strong>Distractor analysis</strong> — {item.prompt}
                         <table style={{ width: '100%', marginTop: 6 }}>
@@ -136,7 +139,7 @@ export default function ItemAnalysis({ exam, summary, items, topics, examsBasePa
                         <div className="section-title-row"><div><h2>Items</h2>
                             <p style={{ margin: 0, color: 'var(--muted)' }}>Difficulty = mean score ratio (higher = easier). Discrimination = corrected item-total correlation (higher = better separates strong/weak students). Expand choice items for distractor analysis.</p></div></div>
                         <table className="dashboard-table" style={{ marginTop: 10 }}>
-                            <thead><tr><th>#</th><th>Type</th><th>Topic</th><th>Difficulty (p)</th><th>Discrimination</th><th>Flags</th><th></th></tr></thead>
+                            <thead><tr><th>#</th><th>Type</th><th>Topic</th><th>Difficulty (p)</th><th>Discrimination</th><th>Flags</th><th>Verdict</th><th></th></tr></thead>
                             <tbody>
                                 {items.map((it) => <ItemRow key={it.position} item={it} />)}
                             </tbody>
