@@ -1,4 +1,5 @@
 import { AlertTriangle, ShieldCheck, Sparkles } from 'lucide-react';
+import MarkdownContent from '../../Components/MarkdownContent';
 import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 
@@ -102,7 +103,7 @@ function QuestionCard({ q, submissionId, suggestion, setScoreExternal }) {
                 <strong>Q{q.position} · {q.type} · {q.topic}</strong>
                 <span style={{ color: 'var(--muted)', fontSize: 13 }}>{q.points} pt</span>
             </div>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{q.prompt}</p>
+            <MarkdownContent>{q.prompt}</MarkdownContent>
             <div style={{ background: '#fafafa', border: '1px solid #eee', borderRadius: 8, padding: '8px 10px' }}>
                 <div style={{ fontSize: 12, color: 'var(--muted)' }}>Student answer</div>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{fmtAnswer(q.studentAnswer)}</div>
@@ -124,7 +125,7 @@ function QuestionCard({ q, submissionId, suggestion, setScoreExternal }) {
                 </div>
             ) : null}
             {!isEssay ? (
-                <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>Correct: <code>{fmtAnswer(q.correctAnswer)}</code> · auto-graded</p>
+                <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>Correct: <MarkdownContent inline>{fmtAnswer(q.correctAnswer)}</MarkdownContent> · auto-graded</p>
             ) : (
                 <>
                     {suggestion ? <SuggestionBox s={suggestion} onUse={(v) => setScore(String(v))} /> : null}

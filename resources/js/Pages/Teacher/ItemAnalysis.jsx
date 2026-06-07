@@ -1,6 +1,7 @@
 import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import MarkdownContent from '../../Components/MarkdownContent';
 
 const FLAG_LABELS = {
     too_easy: 'Too easy',
@@ -84,14 +85,14 @@ function ItemRow({ item }) {
             {open && hasOpts ? (
                 <tr><td colSpan={8} style={{ background: '#fafafa' }}>
                     <div style={{ padding: '6px 10px', fontSize: 13 }}>
-                        <strong>Distractor analysis</strong> — {item.prompt}
+                        <strong>Distractor analysis</strong> — <MarkdownContent inline>{item.prompt}</MarkdownContent>
                         <table style={{ width: '100%', marginTop: 6 }}>
                             <tbody>
                                 {item.options.map((o) => (
                                     <tr key={o.id}>
                                         <td style={{ width: 30 }}>{o.isCorrect ? '✅' : ''}</td>
                                         <td style={{ width: 24 }}><b>{o.id}</b></td>
-                                        <td>{o.text}</td>
+                                        <td><MarkdownContent inline>{o.text}</MarkdownContent></td>
                                         <td style={{ width: 80, textAlign: 'right', color: o.isCorrect ? '#16a34a' : (o.chosen === 0 ? '#b45309' : 'inherit') }}>
                                             {o.chosen} picked{!o.isCorrect && o.chosen === 0 ? ' (dead)' : ''}
                                         </td>

@@ -1,6 +1,7 @@
 import { Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import MarkdownContent from '../../Components/MarkdownContent';
 
 export default function AiGenerate({ exams, provider, model, imageProvider, keyReady, loTopics = [], subjects = [] }) {
     const [f, setF] = useState({
@@ -139,7 +140,7 @@ export default function AiGenerate({ exams, provider, model, imageProvider, keyR
                 <section className="admin-panel">
                     <div className="section-title-row"><div><h2>Added {result.created} question(s) to {result.target}{result.imageCount ? ` · ${result.imageCount} image(s)` : ''}</h2></div></div>
                     <ol style={{ paddingLeft: 18 }}>
-                        {result.questions.map((q, i) => (<li key={i} style={{ marginBottom: 6 }}><strong>{q.type}</strong>{q.hasImage ? ' 🖼' : ''} — {q.prompt}</li>))}
+                        {result.questions.map((q, i) => (<li key={i} style={{ marginBottom: 6 }}><strong>{q.type}</strong>{q.hasImage ? ' 🖼' : ''} — <MarkdownContent inline>{q.prompt}</MarkdownContent></li>))}
                     </ol>
                 </section>
             ) : null}

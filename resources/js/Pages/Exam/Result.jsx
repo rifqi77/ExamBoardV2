@@ -76,9 +76,13 @@ export default function Result({ submission, review }) {
                                         </span>
                                     )}
                                 </div>
-                                <div style={{ fontSize: 14, marginTop: 6 }}><strong>{t('Your answer')}:</strong> {fmtAnswer(q.studentAnswer, q.options)}</div>
+                                <div style={{ fontSize: 14, marginTop: 6 }}><strong>{t('Your answer')}:</strong>{' '}
+                                    {q.type === 'essay' || q.type === 'short_text'
+                                        ? <span style={{ whiteSpace: 'pre-wrap' }}>{fmtAnswer(q.studentAnswer, q.options)}</span>
+                                        : <MarkdownContent inline>{fmtAnswer(q.studentAnswer, q.options)}</MarkdownContent>}
+                                </div>
                                 {q.type !== 'essay' && q.correctAnswer != null ? (
-                                    <div style={{ fontSize: 14 }}><strong>{t('Correct answer')}:</strong> {fmtAnswer(q.correctAnswer, q.options)}</div>
+                                    <div style={{ fontSize: 14 }}><strong>{t('Correct answer')}:</strong> <MarkdownContent inline>{fmtAnswer(q.correctAnswer, q.options)}</MarkdownContent></div>
                                 ) : null}
                                 {q.explanation ? (
                                     <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>

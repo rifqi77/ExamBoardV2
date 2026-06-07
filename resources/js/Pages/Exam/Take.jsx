@@ -58,7 +58,7 @@ function QuestionInput({ q, value, onChange }) {
         return (q.options || []).map((o) => (
             <label key={o.id} style={{ ...optStyle, borderColor: value === o.id ? '#6366f1' : '#e4e4e7', background: value === o.id ? '#eef2ff' : '#fff' }}>
                 <input type="radio" name={q.id} checked={value === o.id} onChange={() => onChange(o.id)} />
-                <span><b>{o.id}.</b> {o.text}</span>
+                <span><b>{o.id}.</b> <MarkdownContent inline>{o.text}</MarkdownContent></span>
             </label>
         ));
     }
@@ -68,7 +68,7 @@ function QuestionInput({ q, value, onChange }) {
             <label key={o.id} style={{ ...optStyle, borderColor: arr.includes(o.id) ? '#6366f1' : '#e4e4e7', background: arr.includes(o.id) ? '#eef2ff' : '#fff' }}>
                 <input type="checkbox" checked={arr.includes(o.id)}
                     onChange={(e) => onChange(e.target.checked ? [...arr, o.id] : arr.filter((x) => x !== o.id))} />
-                <span><b>{o.id}.</b> {o.text}</span>
+                <span><b>{o.id}.</b> <MarkdownContent inline>{o.text}</MarkdownContent></span>
             </label>
         ));
     }

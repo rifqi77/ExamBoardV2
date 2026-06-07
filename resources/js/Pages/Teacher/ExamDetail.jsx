@@ -1,6 +1,7 @@
 import { CheckCircle2, CircleX, Library, Lock, Pencil, Plus, Save, Settings, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import MarkdownContent from '../../Components/MarkdownContent';
 
 function BankPicker({ examId, onClose }) {
     const [rows, setRows] = useState([]);
@@ -534,7 +535,7 @@ export default function ExamDetail({ exam, questions, tokens, examsBasePath }) {
                                     <td>{q.position}</td>
                                     <td>{q.type}</td>
                                     <td>{q.topic}</td>
-                                    <td style={{ maxWidth: 360, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{q.prompt}</td>
+                                    <td style={{ maxWidth: 360, overflow: 'hidden' }}><MarkdownContent inline>{q.prompt}</MarkdownContent></td>
                                     <td>{q.points}</td>
                                     <td style={{ display: 'flex', gap: 6 }}>
                                         <button className="ghost-button" type="button" title="Edit" onClick={() => { setShowAdd(false); setEditingId(q.id); }}><Pencil size={14} aria-hidden /></button>

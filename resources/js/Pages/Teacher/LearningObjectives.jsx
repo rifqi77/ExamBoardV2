@@ -1,6 +1,7 @@
 import { Trash2, Upload } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import MarkdownContent from '../../Components/MarkdownContent';
 import { parseLearningObjectives } from '../../lib/excelParser';
 
 const CURRICULUM_LABELS = {
@@ -115,7 +116,7 @@ export default function LearningObjectives({ objectives, curricula }) {
                                     <td>{o.subject || '—'}</td>
                                     <td>{o.topic}</td>
                                     <td>{o.subtopic || '—'}</td>
-                                    <td style={{ maxWidth: 360 }}>{o.text}</td>
+                                    <td style={{ maxWidth: 360 }}><MarkdownContent inline>{o.text}</MarkdownContent></td>
                                     <td><button className="ghost-button danger" type="button" onClick={() => del(o.id)}><Trash2 size={14} aria-hidden /></button></td>
                                 </tr>
                             ))}

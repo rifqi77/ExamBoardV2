@@ -1,6 +1,7 @@
 import { Pencil, Save, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import MarkdownContent from '../../Components/MarkdownContent';
 
 const TYPES = ['single_choice', 'multi_select', 'short_text', 'numeric', 'essay'];
 const DIFFS = ['easy', 'medium', 'hard', 'hots', 'olympiad'];
@@ -167,7 +168,7 @@ export default function Bank({ options, initial }) {
                                         <td>{q.type}</td>
                                         <td>{q.topic}{q.subtopic ? ` / ${q.subtopic}` : ''}</td>
                                         <td>{q.difficulty || '—'}</td>
-                                        <td style={{ maxWidth: 340, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{q.prompt}</td>
+                                        <td style={{ maxWidth: 340, overflow: 'hidden' }}><MarkdownContent inline>{q.prompt}</MarkdownContent></td>
                                         <td>{q.points}</td>
                                         <td style={{ display: 'flex', gap: 6 }}>
                                             <button className="ghost-button" type="button" title="Edit" onClick={() => setEditing(editing === q.id ? null : q.id)}><Pencil size={14} aria-hidden /></button>
