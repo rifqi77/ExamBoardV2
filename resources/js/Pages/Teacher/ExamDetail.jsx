@@ -450,6 +450,7 @@ export default function ExamDetail({ exam, questions, tokens, examsBasePath }) {
                     </button>
                     <a className="ghost-button" href={`${examsBasePath}/${exam.examId}/live`}>Live monitor</a>
                     <a className="ghost-button" href={`${examsBasePath}/${exam.examId}/analysis`}>Item analysis</a>
+                    <a className="ghost-button" href={`${examsBasePath}/${exam.examId}/blueprint`}>Blueprint</a>
                     <a className="ghost-button" href={`${examsBasePath}/${exam.examId}/audit`}>Answer audit</a>
                     <a className="ghost-button" href={examsBasePath}>← Back</a>
                 </div>

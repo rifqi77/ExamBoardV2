@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminTeachersController;
 use App\Http\Controllers\AnswerAuditController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\BlueprintController;
 use App\Http\Controllers\ExamDetailController;
 use App\Http\Controllers\ExamsController;
 use App\Http\Controllers\LearningObjectivesController;
@@ -50,6 +51,7 @@ Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::get('/teacher/exams/{examId}/live', fn (string $examId) => Inertia::render('Teacher/LiveMonitor', ['examId' => $examId, 'examsBasePath' => '/teacher/exams']));
     Route::get('/teacher/exams/{examId}/audit', [AnswerAuditController::class, 'show']);
     Route::get('/teacher/exams/{examId}/analysis', [\App\Http\Controllers\ItemAnalysisController::class, 'show']);
+    Route::get('/teacher/exams/{examId}/blueprint', [BlueprintController::class, 'show']);
     Route::get('/teacher/scores', [ScoresController::class, 'index']);
     Route::get('/teacher/pending-score', [ScoreToolsController::class, 'pending']);
     Route::get('/teacher/scores/{submissionId}', [TeacherGradeController::class, 'show']);
@@ -66,6 +68,7 @@ Route::middleware('jwt.auth:admin')->group(function () {
     Route::get('/admin/exams/{examId}/live', fn (string $examId) => Inertia::render('Teacher/LiveMonitor', ['examId' => $examId, 'examsBasePath' => '/admin/exams']));
     Route::get('/admin/exams/{examId}/audit', [AnswerAuditController::class, 'show']);
     Route::get('/admin/exams/{examId}/analysis', [\App\Http\Controllers\ItemAnalysisController::class, 'show']);
+    Route::get('/admin/exams/{examId}/blueprint', [BlueprintController::class, 'show']);
     Route::get('/admin/scores', [ScoresController::class, 'index']);
     Route::get('/admin/pending-score', [ScoreToolsController::class, 'pending']);
     Route::get('/admin/scores/{submissionId}', [TeacherGradeController::class, 'show']);
