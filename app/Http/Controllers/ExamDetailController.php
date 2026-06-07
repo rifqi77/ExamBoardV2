@@ -153,6 +153,66 @@ class ExamDetailController extends Controller
         return response()->json(['code' => $code, 'maxUses' => $maxUses]);
     }
 
+    // POST /api/teacher/exams/{examId}/tokens/bulk  — generate N tokens at once
+    //   body: { count, maxUses?, expiresAt? }  → { codes[], count, maxUses }
+    public function generateTokensBulk(Request $request, string $examId)
+    {
+        $user = $request->attributes->get('authUser');
+        $exam = $this->resolveExam($examId);
+        if (! $exam || ! $this->owns($user, $exam)) {
+            return response()->json(['error' => 'Not allowed.'], 403);
+        }
+
+        $count = (int) $request->input('count', 0);
+        if ($count < 1 || $count > 2000) {
+            return response()->json(['error' => 'Count must be 1–2000.'], 400);
+        }
+        $maxUses = (int) $request->input('maxUses', 1); // bulk tokens default to single-use (one per student)
+        if ($maxUses < 1 || $maxUses > 5000) {
+            return response()->json(['error' => 'Max uses must be 1–5000.'], 400);
+        }
+        $expiresRaw = $request->input('expiresAt');
+        $expiresAt = ($expiresRaw && strtotime((string) $expiresRaw) !== false)
+            ? date('Y-m-d H:i:s', strtotime((string) $expiresRaw))
+            : null;
+
+        $rows = [];
+        $codes = [];
+        $seen = [];
+        for ($i = 0; $i < $count; $i++) {
+            $code = '';
+            $digest = '';
+            for ($attempt = 0; $attempt < 12; $attempt++) {
+                $code = $this->generatePlainToken();
+                $digest = $this->tokenDigest($code);
+                if (! isset($seen[$digest]) && ! DB::table('exam_access_tokens')->where('token_digest', $digest)->exists()) {
+                    break;
+                }
+            }
+            $seen[$digest] = true;
+            $codes[] = $code;
+            $rows[] = [
+                'id' => (string) Str::uuid(),
+                'exam_id' => $exam->id,
+                'class_id' => null,
+                'token_digest' => $digest,
+                'token_preview' => CryptoSecrets::encryptTokenPreview($code),
+                'max_uses' => $maxUses,
+                'used_count' => 0,
+                'expires_at' => $expiresAt,
+                'active' => 1,
+                'created_by' => $user->id,
+                'created_by_name' => $user->full_name,
+                'created_at' => now(),
+            ];
+        }
+        DB::table('exam_access_tokens')->insert($rows);
+
+        Audit::log($request, 'token.bulk_generate', 'exam', $exam->id, "Generated {$count} access tokens for {$exam->name}", ['count' => $count, 'maxUses' => $maxUses]);
+
+        return response()->json(['codes' => $codes, 'count' => count($codes), 'maxUses' => $maxUses]);
+    }
+
     // GET /api/teacher/exams/{examId}/seb-config  — download a .seb plist
     public function sebConfig(Request $request, string $examId)
     {

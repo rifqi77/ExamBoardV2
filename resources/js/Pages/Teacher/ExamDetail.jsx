@@ -381,6 +381,8 @@ export default function ExamDetail({ exam, questions, tokens, examsBasePath }) {
     const [maxUses, setMaxUses] = useState(40);
     const [expiresAt, setExpiresAt] = useState('');
     const [newCode, setNewCode] = useState('');
+    const [bulkCount, setBulkCount] = useState(30);
+    const [bulkCodes, setBulkCodes] = useState([]);
     const [error, setError] = useState('');
     const [showAdd, setShowAdd] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -410,6 +412,21 @@ export default function ExamDetail({ exam, questions, tokens, examsBasePath }) {
             if (!res.ok) { setError(data.error || 'Failed.'); setBusy(false); return; }
             setNewCode(data.code); setBusy(false);
             setTimeout(() => window.location.reload(), 1500);
+        } catch { setError('Network error.'); setBusy(false); }
+    }
+    async function generateBulk() {
+        const n = Number(bulkCount) || 0;
+        if (n < 1) return;
+        setBusy(true); setError(''); setNewCode(''); setBulkCodes([]);
+        try {
+            const res = await fetch('/api/teacher/exams/' + exam.examId + '/tokens/bulk', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ count: n, maxUses: 1, expiresAt: expiresAt || null }), credentials: 'same-origin',
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) { setError(data.error || 'Failed.'); setBusy(false); return; }
+            setBulkCodes(data.codes || []); setBusy(false);
+            // No auto-reload: the codes are single-use and shown once — let the teacher copy them first.
         } catch { setError('Network error.'); setBusy(false); }
     }
     async function deactivate(id) {
@@ -474,8 +491,19 @@ export default function ExamDetail({ exam, questions, tokens, examsBasePath }) {
                     <label style={{ fontSize: 13, color: 'var(--muted)' }}>Expires (optional)
                         <input type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} style={{ marginLeft: 6 }} /></label>
                     <button className="primary-button" type="button" onClick={generate} disabled={busy}><Plus size={16} aria-hidden /> {busy ? 'Generating…' : 'Generate token'}</button>
+                    <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', borderLeft: '1px solid #e4e4e7', paddingLeft: 12 }}>
+                        <label style={{ fontSize: 13, color: 'var(--muted)' }}>Bulk single-use
+                            <input type="number" min="1" max="2000" value={bulkCount} onChange={(e) => setBulkCount(e.target.value)} style={{ width: 80, marginLeft: 6 }} /></label>
+                        <button className="ghost-button" type="button" onClick={generateBulk} disabled={busy}>Generate codes</button>
+                    </span>
                 </div>
                 {newCode ? <p style={{ marginTop: 10 }}>New token: <strong style={{ fontSize: 22, letterSpacing: 3 }}>{newCode}</strong></p> : null}
+                {bulkCodes.length > 0 ? (
+                    <div style={{ marginTop: 10 }}>
+                        <p style={{ margin: '0 0 6px' }}><strong>{bulkCodes.length} single-use code(s)</strong> — copy these now (shown once, one per student). <a href="" onClick={(e) => { e.preventDefault(); window.location.reload(); }}>Refresh list</a></p>
+                        <textarea readOnly rows={Math.min(10, bulkCodes.length)} value={bulkCodes.join('\n')} style={{ width: '100%', maxWidth: 320, fontFamily: 'monospace', letterSpacing: 1 }} onFocus={(e) => e.target.select()} />
+                    </div>
+                ) : null}
                 {error ? <p className="form-error" style={{ marginTop: 8 }}>{error}</p> : null}
                 {tokens.length > 0 ? (
                     <table className="dashboard-table" style={{ marginTop: 14 }}>

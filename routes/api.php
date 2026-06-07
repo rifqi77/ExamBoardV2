@@ -32,6 +32,7 @@ Route::middleware('jwt.auth')->group(function () {
 // Teacher/admin write actions
 Route::middleware('jwt.auth:teacher,admin')->group(function () {
     Route::post('/teacher/exams/{examId}/tokens', [ExamDetailController::class, 'generateToken']);
+    Route::post('/teacher/exams/{examId}/tokens/bulk', [ExamDetailController::class, 'generateTokensBulk']);
     Route::post('/teacher/tokens/{tokenId}/deactivate', [ExamDetailController::class, 'deactivateToken']);
     Route::post('/teacher/tokens/{tokenId}/active', [ExamDetailController::class, 'setTokenActive']);
     Route::post('/teacher/tokens/{tokenId}/delete', [ExamDetailController::class, 'deleteTokenHard']);

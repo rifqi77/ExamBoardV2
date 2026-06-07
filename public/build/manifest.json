@@ -1,6 +1,6 @@
 {
-  "_exceljs.min-SpEHB58A.js": {
-    "file": "assets/exceljs.min-SpEHB58A.js",
+  "_exceljs.min-BBbsvJUW.js": {
+    "file": "assets/exceljs.min-BBbsvJUW.js",
     "name": "exceljs.min",
     "isDynamicEntry": true,
     "imports": [
@@ -263,16 +263,16 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-MT2oS1AD.js",
+    "file": "assets/app-C5jueR0b.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
     "dynamicImports": [
       "node_modules/mathlive/mathlive.min.mjs",
       "node_modules/mathlive/mathlive.min.mjs",
-      "_exceljs.min-SpEHB58A.js",
-      "_exceljs.min-SpEHB58A.js",
-      "_exceljs.min-SpEHB58A.js"
+      "_exceljs.min-BBbsvJUW.js",
+      "_exceljs.min-BBbsvJUW.js",
+      "_exceljs.min-BBbsvJUW.js"
     ],
     "css": [
       "assets/app-C6Tj-8BX.css"
