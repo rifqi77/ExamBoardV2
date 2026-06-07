@@ -9,6 +9,7 @@ use App\Models\ExamQuestion;
 use App\Models\ExamSubmission;
 use App\Services\Audit;
 use App\Services\GradingStats;
+use App\Services\OriginalitySignal;
 use App\Services\Scoring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -36,6 +37,7 @@ class TeacherGradeController extends Controller
 
         $snapshot = is_array($sub->answers_snapshot) ? $sub->answers_snapshot : [];
         $manual = is_array($sub->manual_scores) ? $sub->manual_scores : [];
+        $origin = OriginalitySignal::forSubmission($sub);
 
         $questions = ExamQuestion::where('exam_id', $sub->exam_id)->orderBy('position')->get()
             ->values()->map(fn ($q, $i) => [
@@ -50,6 +52,7 @@ class TeacherGradeController extends Controller
                 'rubric' => is_array($q->rubric) ? $q->rubric : null,
                 'studentAnswer' => $snapshot[$q->id] ?? null,
                 'manualScore' => array_key_exists($q->id, $manual) ? $manual[$q->id] : null,
+                'originality' => $origin[$q->id] ?? null,
             ]);
 
         return Inertia::render('Teacher/Grade', [

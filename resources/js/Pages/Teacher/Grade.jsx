@@ -107,6 +107,17 @@ function QuestionCard({ q, submissionId, suggestion, setScoreExternal }) {
                 <div style={{ fontSize: 12, color: 'var(--muted)' }}>Student answer</div>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{fmtAnswer(q.studentAnswer)}</div>
             </div>
+            {isEssay && q.originality ? (
+                <div style={{ marginTop: 6, fontSize: 13 }}>
+                    {q.originality.flag ? (
+                        <span className="status-item warning" title="Word overlap with another student's answer to this question">
+                            <AlertTriangle size={13} aria-hidden /> Possible copy — {q.originality.similarity}% overlap{q.originality.matchName ? ` with ${q.originality.matchName}` : ''} (review)
+                        </span>
+                    ) : (
+                        <span style={{ color: 'var(--muted)' }}>Originality OK · {q.originality.similarity}% max peer overlap</span>
+                    )}
+                </div>
+            ) : null}
             {isEssay && q.rubric && q.rubric.length ? (
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
                     Rubric: {q.rubric.map((c, i) => <span key={i}>{c.criterion} ({c.points})  </span>)}
