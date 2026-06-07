@@ -46,6 +46,7 @@ class SuggestGradesJob implements ShouldQueue
             $job->update(['status' => 'done', 'result' => $suggestions]);
         } catch (\Throwable $e) {
             $job->update(['status' => 'failed', 'error' => mb_substr($e->getMessage(), 0, 500)]);
+            \App\Services\Alerts::send('AI grading suggestion failed', $e->getMessage());
         }
     }
 

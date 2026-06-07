@@ -52,6 +52,7 @@ class GenerateQuestionsJob implements ShouldQueue
             ]);
         } catch (\Throwable $e) {
             $job->update(['status' => 'failed', 'error' => mb_substr($e->getMessage(), 0, 500)]);
+            \App\Services\Alerts::send('AI question generation failed', $e->getMessage());
         }
     }
 

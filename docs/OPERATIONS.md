@@ -134,3 +134,18 @@ bin\eb-optimize.cmd
 This caches config, routes, views, and events. `app:doctor` reports **Prod
 caches built** (only checked when running in production). To undo for local
 editing: `php artisan optimize:clear`.
+
+## 7. Failure alerts
+
+By default every server error is written to `storage/logs/laravel.log`. To get
+*pushed* a notification when something breaks mid-exam, set a webhook in `.env`:
+
+```ini
+ALERT_WEBHOOK_URL=https://hooks.slack.com/services/...   # or Discord/Telegram
+# ALERT_EMAIL=you@example.com        # also email (needs a real MAIL_MAILER)
+# ALERT_THROTTLE_MINUTES=10          # don't repeat the same alert too often
+```
+
+Alerts fire on unhandled 5xx errors and on AI job failures (generation /
+grading). 4xx, validation, auth, and not-found are intentionally ignored.
+`app:doctor` reports **Error alerting** once a channel is configured.

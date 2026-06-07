@@ -118,6 +118,10 @@ class Doctor extends Command
             $this->check('Prod caches built', $cached ? 'PASS' : 'WARN', $cached ? 'config + routes cached' : 'run bin/eb-optimize.cmd');
         }
 
+        // Failure alerting channel.
+        $hasAlert = env('ALERT_WEBHOOK_URL') || env('ALERT_EMAIL');
+        $this->check('Error alerting', $hasAlert ? 'PASS' : 'WARN', $hasAlert ? 'configured' : 'set ALERT_WEBHOOK_URL to be notified of failures');
+
         $this->newLine();
         $this->table(['Status', 'Check', 'Detail'], array_map(fn ($r) => [$this->icon($r[0]), $r[1], $r[2]], $this->rows));
 

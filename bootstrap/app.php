@@ -32,5 +32,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Alert on real server faults (5xx) so a live-exam failure is visible
+        // instead of silent. 4xx/validation/auth/not-found are excluded.
+        $exceptions->report(function (\Throwable $e) {
+            if (\App\Services\Alerts::isAlertable($e)) {
+                \App\Services\Alerts::send(
+                    'Server error: '.class_basename($e).' — '.\Illuminate\Support\Str::limit($e->getMessage(), 140),
+                    $e->getMessage()."\n".$e->getFile().':'.$e->getLine(),
+                    ['type' => get_class($e)]
+                );
+            }
+        });
     })->create();
